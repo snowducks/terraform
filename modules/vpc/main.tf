@@ -14,7 +14,7 @@ resource "aws_subnet" "public" {
   count             = length(var.public_subnet_cidrs)
   vpc_id           = aws_vpc.main.id
   cidr_block       = var.public_subnet_cidrs[count.index]
-  map_public_ip_on_launch = true
+  # map_public_ip_on_launch = true
   availability_zone = element(var.availability_zones, count.index)
 
   tags = {
@@ -27,7 +27,7 @@ resource "aws_subnet" "private" {
   count             = length(var.private_subnet_cidrs)
   vpc_id           = aws_vpc.main.id
   cidr_block       = var.private_subnet_cidrs[count.index]
-  map_public_ip_on_launch = false
+  # map_public_ip_on_launch = false
   availability_zone = element(var.availability_zones, count.index)
 
   tags = {
@@ -104,13 +104,3 @@ resource "aws_route_table_association" "private" {
   route_table_id = element(aws_route_table.private[*].id, count.index)
 }
 
-
-
-
-# 사용법
-#terraform apply -auto-approve \
-#  -var "vpc_cidr=10.0.0.0/16" \
-#  -var "vpc_name=my-vpc" \
-#  -var 'public_subnet_cidrs=["10.0.1.0/24", "10.0.2.0/24"]' \
-#  -var 'private_subnet_cidrs=["10.0.3.0/24", "10.0.4.0/24"]' \
-#  -var 'availability_zones=["ap-northeast-2a", "ap-northeast-2b"]'
