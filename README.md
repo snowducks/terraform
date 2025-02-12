@@ -1,15 +1,16 @@
-# terraform
+## terraform
 
-commit convention 지키기
+### Git Convention
+> 1. 적절한 커밋 접두사 작성
+> 2. 커밋 메시지 내용 작성
+
+> | type        | 설명                           |
+> | ------------- | ------------------------------ |
+> | feat :     | 기능 추가               |
+> | add :      | 에셋 파일 추가                 |
+> | fix :      | 버그 수정                      |
+> | docs :     | 문서 추가 및 수정              |
+> | refactor : | 코드 리팩토링 (동작 변경 없음) |
+> | perf :     | 성능 개선                         |
+> | chore :    | 기타 작업                      |
 <br/>
-feat -> 기능 추가
-<br/>
-chore -> 환경 셋팅
-<br/>
-fix -> 오류 수정
-<br/>
-perf -> 성능 개선
-<br/>
-refactor -> 코드 개선
-<br/>
-ex) feat : VPC 추가
