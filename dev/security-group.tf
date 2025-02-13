@@ -1,5 +1,5 @@
 module "security_group" {
-  source  = "../../modules/security_group"
+  source  = "../modules/security_group"
 
   name    = "my-security-group"
   vpc_id  = "vpc-0450f7a9e5a32c273"
