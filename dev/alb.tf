@@ -1,44 +1,47 @@
-# ALB 보안 그룹 생성
-resource "aws_security_group" "alb_sg" {
+# security_group 모듈을 사용한 ALB 보안 그룹 생성
+module "alb_security_group" {
+  source      = "../modules/security_group"  # 보안 그룹 모듈 경로
   name        = "alb-security-group"
-  description = "Security group for ALB"
   vpc_id      = module.vpc.vpc_id
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # HTTP 포트 개방 (보안 필요 시 수정)
-  }
+  ingress_rules = [
+    {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"] # HTTP 개방 (보안 필요 시 수정)
+    },
+    {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"] # HTTPS 개방 (보안 필요 시 수정)
+    }
+  ]
 
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # HTTPS 포트 개방 (보안 필요 시 수정)
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  egress_rules = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  ]
 }
 
 # ALB 생성
 resource "aws_lb" "eks_alb" {
   name               = "eks-alb"
-  internal           = false  # 외부 접근 가능하도록 설정
+  internal           = true  # ALB 내부 위치
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb_sg.id]
-  subnets           = module.vpc.public  # 퍼블릭 서브넷에 배포
+  security_groups    = [module.alb_security_group.security_group_id]
+  subnets           = module.vpc.private_subnets  # 프라이빗 서브넷에 배포
 }
 
 # Target Group 생성 (EKS 서비스와 연결)
 resource "aws_lb_target_group" "eks_tg" {
   name     = "eks-target-group"
-  port     = 80
+  port     = 32000
   protocol = "HTTP"
   vpc_id   = module.vpc.vpc_id
   target_type = "instance"
@@ -70,7 +73,7 @@ resource "aws_lb_listener" "https_listener" {
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = "arn:aws:acm:ap-northeast-2:796973504685:certificate/YOUR-CERTIFICATE-ARN"  # SSL 인증서 ARN (필요 시 변경)
+  certificate_arn   =  var.certificate_arn
 
   default_action {
     type             = "forward"
