@@ -14,7 +14,7 @@ resource "aws_ecr_repository" "dev_ecr" {
 # ecr 출력 값
 # 출력된 ecr_repository_url 값을 Jenkins에서 사용
 output "ecr_repository_url" {
-  value = aws_ecr_repository.my_app.repository_url
+  value = aws_ecr_repository.dev_ecr.repository_url
 }
 
 
