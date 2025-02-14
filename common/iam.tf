@@ -4,7 +4,7 @@
 
 # 1. Jenkins의 IAM 역할 생성
 resource "aws_iam_role" "jenkins_ecr_role" {
-  name = "jenkins_ecr_role"
+  name = "jenkins-ecr-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -20,7 +20,7 @@ resource "aws_iam_role" "jenkins_ecr_role" {
 
 # 2. Jenkins의 ECR 접근 정책 생성
 resource "aws_iam_policy" "ecr_access_policy" {
-  name        = "jenkins_ecr_access_policy"
+  name        = "jenkins-ecr-access-policy"
   description = "Allows Jenkins to push and pull images from ECR"
 
   policy = jsonencode({

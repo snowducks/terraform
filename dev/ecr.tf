@@ -3,7 +3,7 @@
 
 # ecr 리소스 생성
 resource "aws_ecr_repository" "dev_ecr" {
-  name                 = "dev_ecr"
+  name                 = "dev-ecr"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
