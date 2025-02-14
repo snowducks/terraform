@@ -4,7 +4,17 @@ resource "aws_s3_bucket" "terraform_state" {
 
   # 실수로 삭제 방지
   #lifecycle {
-#prevent_destroy = true
+  #prevent_destroy = true
+  #}
+}
+
+# S3 버킷 생성 (IAM State 저장소)
+resource "aws_s3_bucket" "terraform_state" {
+  bucket = "snowduck-iam-state"
+
+  # 실수로 삭제 방지
+  #lifecycle {
+  #prevent_destroy = true
   #}
 }
 
