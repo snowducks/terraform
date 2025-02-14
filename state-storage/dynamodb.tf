@@ -9,3 +9,14 @@ resource "aws_dynamodb_table" "terraform_locks" {
     type = "S"
   }
 }
+
+#resource "aws_dynamodb_table" "terraform_iam_locks" {
+#  name         = "terraform-iam-locks"
+#  billing_mode = "PAY_PER_REQUEST"
+#  hash_key     = "LockID"
+#
+#  attribute {
+#    name = "LockID"
+#    type = "S"
+#  }
+#}
