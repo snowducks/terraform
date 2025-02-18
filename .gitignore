@@ -3,3 +3,6 @@
 .terraform.*
 .terraform
 terraform.tfvars
+
+dev-key.pub
+dev-key.pem
