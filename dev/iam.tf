@@ -55,3 +55,26 @@ resource "aws_iam_role_policy_attachment" "jenkins_ecr_policy_attach" {
   policy_arn = aws_iam_policy.ecr_access_policy.arn
   role       = aws_iam_role.jenkins_ecr_role.name
 }
+
+
+# Jenkins IAM 역할의 이름과 ARN 출력
+output "jenkins_ecr_role_name" {
+  description = "Jenkins ECR IAM 역할의 이름"
+  value       = aws_iam_role.jenkins_ecr_role.name
+}
+
+output "jenkins_ecr_role_arn" {
+  description = "Jenkins ECR IAM 역할의 ARN"
+  value       = aws_iam_role.jenkins_ecr_role.arn
+}
+
+# ECR 접근 정책의 이름과 ARN 출력
+output "ecr_access_policy_name" {
+  description = "Jenkins의 ECR 접근 정책 이름"
+  value       = aws_iam_policy.ecr_access_policy.name
+}
+
+output "ecr_access_policy_arn" {
+  description = "Jenkins의 ECR 접근 정책 ARN"
+  value       = aws_iam_policy.ecr_access_policy.arn
+}
