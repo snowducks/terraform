@@ -1,7 +1,8 @@
 resource "aws_rds_global_cluster" "aurora_global" {
   global_cluster_identifier = "aurora-global-cluster"
   engine                    = "aurora-mysql"
-  engine_version            = "8.0.mysql_aurora.3.02.0"
+  engine_version            = "8.0.mysql_aurora.3.04.2"  # 최신 지원 버전으로 변경
+  database_name             = "example_db"
 }
 
 resource "aws_db_subnet_group" "aurora_subnet_group" {
@@ -14,17 +15,18 @@ resource "aws_db_subnet_group" "aurora_subnet_group" {
 }
 
 resource "aws_rds_cluster" "aurora_primary" {
+
+  engine                    = aws_rds_global_cluster.aurora_global.engine
+  engine_version            = aws_rds_global_cluster.aurora_global.engine_version
   cluster_identifier        = "aurora-primary-cluster"
   global_cluster_identifier = aws_rds_global_cluster.aurora_global.id
-  engine                    = "aurora-mysql"
-  engine_version            = "8.0.mysql_aurora.3.02.0"
   database_name             = "mydatabase"
   master_username           = var.db_master_username
   master_password           = var.db_master_password
   backup_retention_period   = 7
   preferred_backup_window   = "02:00-03:00"
   skip_final_snapshot       = true
-  storage_encrypted         = true
+  #storage_encrypted         = true
   apply_immediately         = true
 
   db_subnet_group_name      = aws_db_subnet_group.aurora_subnet_group.name

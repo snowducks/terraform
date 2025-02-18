@@ -6,6 +6,7 @@ resource "aws_key_pair" "ec2_key" {
 resource "aws_security_group" "jenkins_sg" {
   name        = "jenkins-security-group"
   description = "Allow access to Jenkins from Bastion"
+  vpc_id = module.vpc.vpc_id
 
   ingress{
     from_port       = 22
@@ -36,6 +37,7 @@ resource "aws_security_group" "jenkins_sg" {
 resource "aws_security_group" "bastion_sg" {
   name        = "bastion-security-group"
   description = "Allow SSH from the internet"
+  vpc_id = module.vpc.vpc_id
 
   # SSH (포트 22) - 외부에서 접근 가능 (IP 제한 가능)
   ingress {
