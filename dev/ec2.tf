@@ -83,6 +83,15 @@ resource "aws_instance" "bastion_instance" {
   }
 }
 
+resource "aws_eip" "bastion_eip" {
+  instance = aws_instance.bastion_instance.id
+  domain   = "vpc"
+
+  tags = {
+    Name = "bastion-eip"
+  }
+}
+
 # 출력값 (접속 정보 확인)
 output "bastion_public_ip" {
   value = aws_instance.bastion_instance.public_ip
