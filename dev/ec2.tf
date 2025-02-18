@@ -7,10 +7,16 @@ resource "aws_security_group" "jenkins_sg" {
   name        = "jenkins-security-group"
   description = "Allow access to Jenkins from Bastion"
 
-
-  ingress {
+  ingress{
     from_port       = 22
     to_port         = 22
+    protocol        = "tcp"
+    security_groups = [aws_security_group.bastion_sg.id]  # Bastion 서버에서만 허용
+  }
+
+  ingress {
+    from_port       = 80
+    to_port         = 80
     protocol        = "tcp"
     security_groups = [aws_security_group.bastion_sg.id]  # Bastion 서버에서만 허용
   }
