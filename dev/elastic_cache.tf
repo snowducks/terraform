@@ -6,6 +6,7 @@ resource "aws_elasticache_subnet_group" "elasticcache_subnet_group" {
 resource "aws_security_group" "elasticache_sg" {
   name        = "dev-elasticache-security-group"
   description = "Allow inbound traffic to Elasticache"
+  vpc_id = module.vpc.vpc_id
 
   ingress {
     from_port   = 6379
