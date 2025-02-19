@@ -7,7 +7,7 @@ resource "aws_rds_global_cluster" "aurora_global" {
 
 resource "aws_db_subnet_group" "aurora_subnet_group" {
   name       = "aurora-subnet-group"
-  subnet_ids = module.vpc.private_subnets  # VPC 모듈에서 서브넷 가져오기
+  subnet_ids = [module.vpc.private_subnets[2]]  # VPC 모듈에서 서브넷 가져오기
 
   tags = {
     Name = "AuroraSubnetGroup"
@@ -60,4 +60,34 @@ module "aurora_sg" {
       cidr_blocks = ["0.0.0.0/0"]
     }
   ]
+}
+
+# RDS 글로벌 클러스터의 ARN 출력
+output "aurora_global_cluster_arn" {
+  description = "ARN of the Aurora Global Cluster"
+  value       = aws_rds_global_cluster.aurora_global.arn
+}
+
+# RDS 클러스터의 엔드포인트 출력
+output "aurora_cluster_endpoint" {
+  description = "Endpoint of the Aurora Cluster"
+  value       = aws_rds_cluster.aurora_primary.endpoint
+}
+
+# RDS 클러스터의 Reader 엔드포인트 출력
+output "aurora_cluster_reader_endpoint" {
+  description = "Reader endpoint of the Aurora Cluster"
+  value       = aws_rds_cluster.aurora_primary.reader_endpoint
+}
+
+# RDS 클러스터의 보안 그룹 ID 출력
+output "aurora_security_group_id" {
+  description = "Security Group ID associated with the Aurora Cluster"
+  value       = module.aurora_sg.security_group_id
+}
+
+# RDS 클러스터의 서브넷 그룹 이름 출력
+output "aurora_subnet_group_name" {
+  description = "Subnet Group Name of the Aurora Cluster"
+  value       = aws_db_subnet_group.aurora_subnet_group.name
 }

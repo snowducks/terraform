@@ -11,6 +11,21 @@ resource "aws_ecr_repository" "dev_ecr" {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
+resource "aws_ecr_replication_configuration" "dev_ecr_replication" {
+  replication_configuration {
+    rule {
+      destination {
+        region       = "us-east-2"  # 복제할 대상 리전
+        registry_id = data.aws_caller_identity.current.account_id
+      }
+    }
+  }
+}
+
+
+
 # ecr 출력 값
 # 출력된 ecr_repository_url 값을 Jenkins에서 사용
 output "ecr_repository_url" {
