@@ -23,14 +23,13 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
-
   enable_cluster_creator_admin_permissions = true # 해결
 
   cluster_name    = "eks_cluster"
   cluster_version = "1.32"
 
-  vpc_id                         = module.vpc.vpc_id
-  subnet_ids                     = module.vpc.private_subnets
+  vpc_id                         = module.vpc-eks.vpc_id
+  subnet_ids                     = module.vpc-eks.private_subnets
   cluster_security_group_id      = aws_security_group.eks_sg.id
   cluster_additional_security_group_ids = [aws_security_group.eks_sg.id]
   cluster_endpoint_public_access = true
@@ -109,7 +108,6 @@ module "eks_aws_auth" {
       groups   = ["system:masters"]
     }
   ]
-  depends_on = [module.eks]  # ✅ EKS 클러스터 생성 후 실행되도록 설정
 }
 
 
