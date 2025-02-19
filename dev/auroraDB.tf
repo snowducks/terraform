@@ -7,7 +7,7 @@ resource "aws_rds_global_cluster" "aurora_global" {
 
 resource "aws_db_subnet_group" "aurora_subnet_group" {
   name       = "aurora-subnet-group"
-  subnet_ids = [module.vpc.private_subnets[2], module.vpc.private_subnets[4]]  # VPC 모듈에서 서브넷 가져오기
+  subnet_ids = module.vpc.private_subnets  # VPC 모듈에서 서브넷 가져오기
 
   tags = {
     Name = "AuroraSubnetGroup"
