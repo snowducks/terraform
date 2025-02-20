@@ -1,9 +1,9 @@
-resource "aws_elasticache_subnet_group" "elasticcache_subnet_group" {
+resource "aws_elasticache_subnet_group" "dev_elasticcache_subnet_group" {
   name       = "dev-elasticache-subnet-group"
   subnet_ids = module.vpc.private_subnets
 }
 
-resource "aws_security_group" "elasticache_sg" {
+resource "aws_security_group" "dev_elasticache_sg" {
   name        = "dev-elasticache-security-group"
   description = "Allow inbound traffic to Elasticache"
   vpc_id = module.vpc.vpc_id
@@ -23,11 +23,11 @@ resource "aws_security_group" "elasticache_sg" {
   }
 
   tags = {
-    Name = "elasticache-sg"
+    Name = "dev-elasticache-sg"
   }
 }
 
-resource "aws_elasticache_cluster" "elasticache_cluster" {
+resource "aws_elasticache_cluster" "dev_elasticache_cluster" {
   cluster_id           = "dev-redis-cluster"
   engine              = "redis"
   node_type           = "cache.t3.micro"
@@ -39,21 +39,21 @@ resource "aws_elasticache_cluster" "elasticache_cluster" {
   security_group_ids  = [aws_security_group.elasticache_sg.id]
 
   tags = {
-    Name = "MyRedisCluster"
+    Name = "my-dev-redis-cluster"
   }
 }
 
 output "elasticache_cluster_id" {
   description = "ElastiCache 클러스터의 ID"
-  value       = aws_elasticache_cluster.elasticache_cluster.id
+  value       = aws_elasticache_cluster.dev_elasticache_cluster.id
 }
 
 output "elasticache_primary_endpoint" {
   description = "ElastiCache 클러스터의 기본 엔드포인트 주소"
-  value       = aws_elasticache_cluster.elasticache_cluster.cache_nodes[0].address
+  value       = aws_elasticache_cluster.dev_elasticache_cluster.cache_nodes[0].address
 }
 
 output "elasticache_port" {
   description = "ElastiCache 클러스터의 포트 번호"
-  value       = aws_elasticache_cluster.elasticache_cluster.cache_nodes[0].port
+  value       = aws_elasticache_cluster.dev_elasticache_cluster.cache_nodes[0].port
 }
