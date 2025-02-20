@@ -25,13 +25,13 @@ module "eks" {
 
   enable_cluster_creator_admin_permissions = true # 해결
 
-  cluster_name    = "eks_cluster"
+  cluster_name    = "dev-eks-cluster"
   cluster_version = "1.32"
 
   vpc_id                         = module.vpc.vpc_id
   subnet_ids                     = module.vpc.private_subnets
-  cluster_security_group_id      = aws_security_group.eks_sg.id
-  cluster_additional_security_group_ids = [aws_security_group.eks_sg.id]
+  cluster_security_group_id      = aws_security_group.dev_eks_sg.id
+  cluster_additional_security_group_ids = [aws_security_group.dev_eks_sg.id]
   cluster_endpoint_public_access = true
 
   eks_managed_node_group_defaults = {
@@ -121,7 +121,7 @@ data "aws_eks_cluster_auth" "default" {
 
 provider "kubernetes" {
   host                   = data.aws_eks_cluster.dev_eks_cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.default.certificate_authority[0].data)
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.dev_eks_cluster.certificate_authority[0].data)
   token                  = data.aws_eks_cluster_auth.default.token
 }
 

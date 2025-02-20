@@ -35,8 +35,8 @@ resource "aws_elasticache_cluster" "dev_elasticache_cluster" {
   parameter_group_name = "default.redis7"
   engine_version      = "7.0"
   port                = 6379
-  subnet_group_name   = aws_elasticache_subnet_group.elasticcache_subnet_group.name
-  security_group_ids  = [aws_security_group.elasticache_sg.id]
+  subnet_group_name   = aws_elasticache_subnet_group.dev_elasticcache_subnet_group.name
+  security_group_ids  = [aws_security_group.dev_elasticache_sg.id]
 
   tags = {
     Name = "my-dev-redis-cluster"
