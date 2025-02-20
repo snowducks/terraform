@@ -37,6 +37,18 @@ resource "aws_rds_cluster" "aurora_primary" {
   }
 }
 
+resource "aws_rds_cluster_instance" "aurora_primary_instance" {
+  count               = 1 
+  identifier          = "aurora-primary-instance-${count.index}"
+  cluster_identifier  = aws_rds_cluster.aurora_primary.id
+  instance_class      = "db.r5.large"  
+  engine              = aws_rds_cluster.aurora_primary.engine
+  engine_version      = aws_rds_cluster.aurora_primary.engine_version
+  publicly_accessible = false 
+  apply_immediately   = true
+}
+
+
 module "aurora_sg" {
   source = "../modules/security_group"
 
@@ -90,4 +102,9 @@ output "aurora_security_group_id" {
 output "aurora_subnet_group_name" {
   description = "Subnet Group Name of the Aurora Cluster"
   value       = aws_db_subnet_group.aurora_subnet_group.name
+}
+
+output "aurora_global_cluster_id" {
+  description = "ID of the Aurora Global Cluster"
+  value       = aws_rds_global_cluster.aurora_global.id
 }
