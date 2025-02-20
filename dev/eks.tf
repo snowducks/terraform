@@ -109,7 +109,7 @@ module "eks_aws_auth" {
       groups   = ["system:masters"]
     }
   ]
-  depends_on = [module.eks]  # ✅ EKS 클러스터 생성 후 실행되도록 설정
+
 }
 
 
@@ -120,6 +120,7 @@ data "aws_eks_cluster" "default" {
 
 data "aws_eks_cluster_auth" "default" {
   name = module.eks.cluster_name
+  depends_on = [module.eks]
 }
 
 provider "kubernetes" {

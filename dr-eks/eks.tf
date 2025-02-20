@@ -1,6 +1,6 @@
 resource "aws_security_group" "eks_sg" {
   name   = "eks_sg"
-  vpc_id = module.vpc.vpc_id
+  vpc_id = module.vpc-eks.vpc_id
 
   ingress {
     from_port   = 80
@@ -118,6 +118,7 @@ data "aws_eks_cluster" "default" {
 
 data "aws_eks_cluster_auth" "default" {
   name = module.eks.cluster_name
+  depends_on = [module.eks]
 }
 
 provider "kubernetes" {
