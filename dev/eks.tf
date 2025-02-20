@@ -1,5 +1,5 @@
-resource "aws_security_group" "eks_sg" {
-  name   = "eks_sg"
+resource "aws_security_group" "dev_eks_sg" {
+  name   = "dev-eks-sg"
   vpc_id = module.vpc.vpc_id
 
   ingress {
@@ -18,7 +18,6 @@ resource "aws_security_group" "eks_sg" {
 }
 
 
-
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
@@ -26,13 +25,13 @@ module "eks" {
 
   enable_cluster_creator_admin_permissions = true # 해결
 
-  cluster_name    = "eks_cluster"
+  cluster_name    = "dev-eks-cluster"
   cluster_version = "1.32"
 
   vpc_id                         = module.vpc.vpc_id
   subnet_ids                     = module.vpc.private_subnets
-  cluster_security_group_id      = aws_security_group.eks_sg.id
-  cluster_additional_security_group_ids = [aws_security_group.eks_sg.id]
+  cluster_security_group_id      = aws_security_group.dev_eks_sg.id
+  cluster_additional_security_group_ids = [aws_security_group.dev_eks_sg.id]
   cluster_endpoint_public_access = true
 
   eks_managed_node_group_defaults = {
@@ -41,26 +40,25 @@ module "eks" {
 
   eks_managed_node_groups = {
     one = {
-      name = "node-group-1"
+      name = "dev-node-group-1"
 
       instance_types = ["t3.small"]
 
       min_size     = 1
       max_size     = 3
-      desired_size = 2
+      desired_size = 1
     }
 
     two = {
-      name = "node-group-2"
+      name = "dev-node-group-2"
 
       instance_types = ["t3.small"]
 
       min_size     = 1
       max_size     = 3
-      desired_size = 2
+      desired_size = 1
     }
   }
-
 }
 
 module "eks_aws_auth" {
@@ -109,11 +107,9 @@ module "eks_aws_auth" {
       groups   = ["system:masters"]
     }
   ]
-
 }
 
-
-data "aws_eks_cluster" "default" {
+data "aws_eks_cluster" "dev_eks_cluster" {
   name = module.eks.cluster_name
   depends_on = [module.eks]
 }
@@ -124,8 +120,8 @@ data "aws_eks_cluster_auth" "default" {
 }
 
 provider "kubernetes" {
-  host                   = data.aws_eks_cluster.default.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.default.certificate_authority[0].data)
+  host                   = data.aws_eks_cluster.dev_eks_cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.dev_eks_cluster.certificate_authority[0].data)
   token                  = data.aws_eks_cluster_auth.default.token
 }
 
