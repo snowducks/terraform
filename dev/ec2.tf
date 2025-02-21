@@ -89,7 +89,7 @@ resource "aws_instance" "dev_bastion_instance" {
 # 탄력적 IP 할당
 resource "aws_eip" "dev_bastion_eip" {
   instance = aws_instance.dev_bastion_instance.id
-  domain   = "dev_vpc"
+  domain   = "vpc"
 
   tags = {
     Name = "dev-bastion-eip"
