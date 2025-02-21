@@ -26,7 +26,7 @@ module "dev_eks" {
   enable_cluster_creator_admin_permissions = true # 해결
 
   cluster_name    = "dev-eks-cluster"
-  cluster_version = "1.32"
+  cluster_version = "1.31"
 
   vpc_id                         = module.dev_vpc.vpc_id
   subnet_ids                     = module.dev_vpc.private_subnets
@@ -42,21 +42,11 @@ module "dev_eks" {
     one = {
       name = "dev-node-group-1"
 
-      instance_types = ["t3.small"]
+      instance_types = ["c6i.xlarge"]
 
-      min_size     = 1
-      max_size     = 3
-      desired_size = 1
-    }
-
-    two = {
-      name = "dev-node-group-2"
-
-      instance_types = ["t3.small"]
-
-      min_size     = 1
-      max_size     = 3
-      desired_size = 1
+      min_size     = 2
+      max_size     = 15
+      desired_size = 3
     }
   }
 }

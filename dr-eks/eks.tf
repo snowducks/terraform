@@ -24,7 +24,7 @@ module "dr_eks" {
   enable_cluster_creator_admin_permissions = true # 해결
 
   cluster_name    = "eks_cluster"
-  cluster_version = "1.32"
+  cluster_version = "1.31"
 
   vpc_id                         = module.dr_eks_vpc.vpc_id
   subnet_ids                     = module.dr_eks_vpc.private_subnets
@@ -38,23 +38,13 @@ module "dr_eks" {
 
   eks_managed_node_groups = {
     one = {
-      name = "node-group-1"
+      name = "dr-eks-node-group-1"
 
-      instance_types = ["t3.small"]
+      instance_types = ["c6i.xlarge"]
 
-      min_size     = 1
-      max_size     = 3
-      desired_size = 1
-    }
-
-    two = {
-      name = "node-group-2"
-
-      instance_types = ["t3.small"]
-
-      min_size     = 1
-      max_size     = 3
-      desired_size = 1
+      min_size     = 2
+      max_size     = 15
+      desired_size = 3
     }
   }
 }
