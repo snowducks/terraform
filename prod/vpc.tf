@@ -17,19 +17,18 @@ module "prod_vpc" {
   internet_gateway  = "prod-igw"
   public_route_table = "prod-public-rt"
   private_route_tables = ["prod-private-rt-1", "prod-private-rt-2"]
-  
 }
 
 
-# EKS VPC 출력값
-output "eks_vpc_id" {
+# Prod VPC 출력값
+output "prod_vpc_id" {
   value = module.prod_vpc.vpc_id
 }
 
-output "eks_public_subnets" {
+output "prod_public_subnets" {
   value = module.prod_vpc.public_subnets
 }
 
-output "eks_private_subnets" {
+output "prod_private_subnets" {
   value = module.prod_vpc.private_subnets
 }

@@ -17,8 +17,6 @@ resource "aws_security_group" "prod_eks_sg" {
   }
 }
 
-
-
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"

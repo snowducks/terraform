@@ -39,21 +39,21 @@ resource "aws_elasticache_cluster" "prod_elasticache_cluster" {
   security_group_ids  = [aws_security_group.prod_elasticache_sg.id]
 
   tags = {
-    Name = "MyRedisCluster"
+    Name = "prod-elasticache-cluster"
   }
 }
 
-output "elasticache_cluster_id" {
+output "prod_elasticache_cluster_id" {
   description = "ElastiCache 클러스터의 ID"
   value       = aws_elasticache_cluster.prod_elasticache_cluster.id
 }
 
-output "elasticache_primary_endpoint" {
+output "prod_elasticache_primary_endpoint" {
   description = "ElastiCache 클러스터의 기본 엔드포인트 주소"
   value       = aws_elasticache_cluster.prod_elasticache_cluster.cache_nodes[0].address
 }
 
-output "elasticache_port" {
+output "prod_elasticache_port" {
   description = "ElastiCache 클러스터의 포트 번호"
   value       = aws_elasticache_cluster.prod_elasticache_cluster.cache_nodes[0].port
 }
