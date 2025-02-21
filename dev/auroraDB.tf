@@ -1,6 +1,6 @@
 resource "aws_db_subnet_group" "dev_aurora_subnet_group" {
   name       = "dev-aurora-subnet-group"
-  subnet_ids = module.vpc.private_subnets
+  subnet_ids = module.dev_vpc.private_subnets
   tags = {
     Name = "dev-aurora-subnet-group"
   }
