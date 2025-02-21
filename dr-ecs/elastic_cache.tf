@@ -12,7 +12,7 @@ resource "aws_security_group" "dr_ecs_elasticache_sg" {
     from_port   = 6379
     to_port     = 6379
     protocol    = "tcp"
-    cidr_blocks = ["10.1.0.0/16"]
+    cidr_blocks = ["10.2.0.0/16"]
   }
 
   egress {
