@@ -59,7 +59,7 @@ resource "aws_route_table" "public_route_table" {
 
 # 퍼블릭 서브넷과 라우트 테이블 연결
 resource "aws_route_table_association" "route_table_association" {
-  count = length(var.private_subnet_cidrs)
+  count = length(var.public_subnet_cidrs)
   subnet_id      = element(aws_subnet.public_subnets[*].id, count.index)
   route_table_id = aws_route_table.public_route_table.id
 }
@@ -74,7 +74,7 @@ resource "aws_eip" "nat_gateways" {
 resource "aws_nat_gateway" "nat_gateways" {
   count         = length(var.availability_zones)
   allocation_id = element(aws_eip.nat_gateways[*].id, count.index)
-  subnet_id = element(aws_subnet.public_subnets[*].id, count.index % length(var.public_subnet_cidrs))
+  subnet_id = element(aws_subnet.public_subnets[*].id, count.index)
 
   tags = {
     Name = var.nat_gateways[count.index]
@@ -100,7 +100,7 @@ resource "aws_route_table" "private_route_tables" {
 
 # 프라이빗 서브넷과 라우트 테이블 연결
 resource "aws_route_table_association" "private" {
-  count = length(var.availability_zones)
+  count = length(var.private_subnet_cidrs)
   subnet_id      = element(aws_subnet.private_subnets[*].id, count.index)
   route_table_id = element(aws_route_table.private_route_tables[*].id, count.index)
 }
