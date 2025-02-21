@@ -17,7 +17,7 @@ resource "aws_ecr_replication_configuration" "dev_ecr_replication" {
   replication_configuration {
     rule {
       destination {
-        region       = "us-east-2"  # 복제할 대상 리전
+        region       = "us-east-2"  # 자동으로 대상 리전으로 복제해줌
         registry_id = data.aws_caller_identity.current.account_id
       }
     }
