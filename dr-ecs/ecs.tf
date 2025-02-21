@@ -1,5 +1,5 @@
 # ECS 클러스터 설정
-module "ecs_cluster" {
+module "dr_ecs_cluster" {
   source  = "terraform-aws-modules/ecs/aws"
   version = ">= 3.69, < 5.0"
 
@@ -7,18 +7,18 @@ module "ecs_cluster" {
 }
 
 # ECS 태스크 정의 (Fargate)
-resource "aws_ecs_task_definition" "ecs_task" {
+resource "aws_ecs_task_definition" "dr_ecs_task" {
   family                   = "dr-ecs-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 512
   memory                   = 1024
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  execution_role_arn       = aws_iam_role.dr_ecs_task_execution_role.arn
 
   container_definitions = jsonencode([
     {
-      name      = "dr-container"
-      image     = "796973504685.dkr.ecr.ap-northeast-2.amazonaws.com/dev-ecr:latest"  # ECR 이미지 사용
+      name      = "dr-ecs-container"
+      image     = "${aws_ecr_repository.dr_ecr.repository_url}:latest"  # ECR 이미지 사용
       cpu       = 512
       memory    = 1024
       essential = true
@@ -33,7 +33,7 @@ resource "aws_ecs_task_definition" "ecs_task" {
 }
 
 # ECS IAM 역할 (태스크 실행)
-resource "aws_iam_role" "ecs_task_execution_role" {
+resource "aws_iam_role" "dr_ecs_task_execution_role" {
   name = "dr-ecs-task-execution-role"
 
   assume_role_policy = jsonencode({
@@ -50,49 +50,9 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   })
 }
 
-# ECR Pull 권한 추가
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_ecr_readonly_policy" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
-
-# 추가: ECS 태스크가 SSM 및 Secrets Manager에서 환경변수를 가져올 수 있도록 권한 부여
-resource "aws_iam_role_policy_attachment" "ecs_ssm_secrets_access" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
-}
-
-# ECS 서비스 생성 (Fargate)
-resource "aws_ecs_service" "ecs_service" {
-  name            = "dr-ecs-service"
-  cluster         = module.ecs_cluster.cluster_id
-  task_definition = aws_ecs_task_definition.ecs_task.arn
-  desired_count   = 2
-  launch_type     = "FARGATE"
-
-  network_configuration {
-    subnets         = module.vpc-ecs.private_subnets
-    security_groups = [aws_security_group.ecs_sg.id]
-    assign_public_ip = false  # Private Subnet에서 실행하도록 설정 (인터넷 접근 필요 시 NAT Gateway 필요)
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.ecs_target_group.arn
-    container_name   = "dr-container"
-    container_port   = 80
-  }
-
-  depends_on = [aws_lb_listener.http]
-}
-
 # 보안 그룹 설정 (ECS)
-resource "aws_security_group" "ecs_sg" {
-  vpc_id = module.vpc-ecs.vpc_id
+resource "aws_security_group" "dr_ecs_sg" {
+  vpc_id = module.dr_ecs_vpc.vpc_id
 
   ingress {
     from_port   = 80
@@ -109,46 +69,86 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
+# ECR Pull 권한 추가
+resource "aws_iam_role_policy_attachment" "dr_ecs_task_execution_policy" {
+  role       = aws_iam_role.dr_ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_ecr_readonly_policy" {
+  role       = aws_iam_role.dr_ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+# 추가: ECS 태스크가 SSM 및 Secrets Manager에서 환경변수를 가져올 수 있도록 권한 부여
+resource "aws_iam_role_policy_attachment" "ecs_ssm_secrets_access" {
+  role       = aws_iam_role.dr_ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
+}
+
+# ECS 서비스 생성 (Fargate)
+resource "aws_ecs_service" "dr_ecs_service" {
+  name            = "dr-ecs-service"
+  cluster         = module.dr_ecs_cluster.cluster_id
+  task_definition = aws_ecs_task_definition.dr_ecs_task.arn
+  desired_count   = 2
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets         = module.dr_ecs_vpc.private_subnets
+    security_groups = [aws_security_group.dr_ecs_sg.id]
+    assign_public_ip = false  # Private Subnet에서 실행하도록 설정 (인터넷 접근 필요 시 NAT Gateway 필요)
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.dr_ecs_target_group.arn
+    container_name   = "dr-ecs-container"
+    container_port   = 80
+  }
+
+  depends_on = [aws_lb_listener.dr_ecs_lb_listener]
+}
+
 # 로드밸런서 설정
-resource "aws_lb" "ecs_lb" {
+resource "aws_lb" "dr_ecs_lb" {
   name               = "dr-ecs-lb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.ecs_sg.id]
-  subnets           = module.vpc-ecs.public_subnets
+  subnets           = module.dr_ecs_vpc.public_subnets
 }
 
-resource "aws_lb_target_group" "ecs_target_group" {
+resource "aws_lb_target_group" "dr_ecs_target_group" {
   name     = "dr-ecs-tg"
   port     = 80
   protocol = "HTTP"
-  vpc_id   = module.vpc-ecs.vpc_id
+  vpc_id   = module.dr_ecs_vpc.vpc_id
   target_type = "ip"
 }
 
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.ecs_lb.arn
+resource "aws_lb_listener" "dr_ecs_lb_listener" {
+  load_balancer_arn = aws_lb.dr_ecs_lb.arn
   port              = 80
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.ecs_target_group.arn
+    target_group_arn = aws_lb_target_group.dr_ecs_target_group.arn
   }
 }
 
 # 출력값
-output "ecs_cluster_id" {
+output "dr_ecs_cluster_id" {
   description = "ECS 클러스터 ID"
-  value       = module.ecs_cluster.cluster_id
+  value       = module.dr_ecs_cluster.cluster_id
 }
 
-output "ecs_service_name" {
+output "dr_ecs_service_name" {
   description = "ECS 서비스 이름"
-  value       = aws_ecs_service.ecs_service.name
+  value       = aws_ecs_service.dr_ecs_service.name
 }
 
-output "ecs_lb_dns_name" {
+output "dr_ecs_lb_dns_name" {
   description = "ECS 로드밸런서 DNS"
-  value       = aws_lb.ecs_lb.dns_name
+  value       = aws_lb.dr_ecs_lb.dns_name
 }
