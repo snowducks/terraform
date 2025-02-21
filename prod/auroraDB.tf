@@ -49,6 +49,19 @@ resource "aws_rds_cluster_instance" "prod_aurora_primary_instance" {
 }
 
 
+
+resource "aws_rds_cluster_instance" "prod_aurora_read_replica" {
+  count               = 2  # 원하는 만큼 Reader 인스턴스를 추가 가능
+  identifier          = "prod-aurora-reader-instance-${count.index}"
+  cluster_identifier  = aws_rds_cluster.aurora_primary.id
+  instance_class      = "db.r5.large"
+  engine              = aws_rds_cluster.aurora_primary.engine
+  engine_version      = aws_rds_cluster.aurora_primary.engine_version
+  publicly_accessible = false
+  apply_immediately   = true
+}
+
+
 module "prod_aurora_sg" {
   source = "../modules/security_group"
 
@@ -60,7 +73,7 @@ module "prod_aurora_sg" {
       from_port   = 3306
       to_port     = 3306
       protocol    = "tcp"
-      cidr_blocks = ["10.0.0.0/16"]  # 내부 VPC에서만 접근 가능하도록 설정
+      cidr_blocks = ["10.3.0.0/16"]  # 내부 VPC에서만 접근 가능하도록 설정
     }
   ]
 
@@ -107,4 +120,10 @@ output "aurora_subnet_group_name" {
 output "aurora_global_cluster_id" {
   description = "ID of the Aurora Global Cluster"
   value       = aws_rds_global_cluster.aurora_global.id
+}
+
+
+output "aurora_read_instance_ids" {
+  description = "List of Aurora Read Replica Instances"
+  value       = aws_rds_cluster_instance.prod_aurora_read_replica[*].id
 }

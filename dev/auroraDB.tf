@@ -1,3 +1,4 @@
+# Aurora Subnet Group (기존 코드 유지)
 resource "aws_db_subnet_group" "dev_aurora_subnet_group" {
   name       = "dev-aurora-subnet-group"
   subnet_ids = module.dev_vpc.private_subnets
@@ -6,44 +7,47 @@ resource "aws_db_subnet_group" "dev_aurora_subnet_group" {
   }
 }
 
-data "terraform_remote_state" "prod_aurora_primary_state" {
-  backend = "s3"
-  config = {
-    bucket = "prod-snowduck-terraform-state"
-    key = "prod/state-storage/terraform.tfstate"
-    region = "ap-northeast-2"
-  }
-}
+# Dev 환경에서만 사용할 Aurora Cluster (Regional)
+resource "aws_rds_cluster" "dev_aurora_cluster" {
+  cluster_identifier     = "dev-aurora-cluster" 
+  engine                = "aurora-mysql"
+  engine_version        = "8.0.mysql_aurora.3.04.2"  
+  database_name             = "mydatabase"
+  master_username           = var.db_master_username
+  master_password           = var.db_master_password
+  db_subnet_group_name  = aws_db_subnet_group.dev_aurora_subnet_group.name
+  vpc_security_group_ids = [module.dev_aurora_sg.security_group_id]
+  
+  backup_retention_period = 7  
+  preferred_backup_window = "07:00-09:00"  
 
-# Aurora 보조 클러스터 생성 (EKS 연계)
-resource "aws_rds_cluster" "dev_aurora_secondary_cluster" {
-  cluster_identifier        = "dev-aurora-secondary-cluster"
-  global_cluster_identifier  = data.terraform_remote_state.prod_aurora_primary_state.outputs.aurora_global_cluster_id
-  engine                    = "aurora-mysql"
-  engine_version            = "8.0.mysql_aurora.3.04.2"  # 최신 지원 버전으로 변경
-  db_subnet_group_name      = aws_db_subnet_group.dev_aurora_subnet_group.name
-  vpc_security_group_ids    = [module.dev_aurora_sg.security_group_id]  # 보안 그룹 사용
-  skip_final_snapshot       = true
-  apply_immediately         = true
+  storage_encrypted       = true 
+  deletion_protection     = false  
+
+  apply_immediately       = true
+  skip_final_snapshot     = true  
+
   tags = {
-    Name = "dev-aurora-secondary-cluster"
+    Name = "dev-aurora-cluster"
   }
 }
 
-resource "aws_rds_cluster_instance" "dev_aurora_secondary_instance" {
-  count                = 2  # 원하는 만큼 Reader Instance 개수를 조절
-  identifier           = "dev-aurora-secondary-instance-${count.index}"
-  cluster_identifier   = aws_rds_cluster.dev_aurora_secondary_cluster.id
-  instance_class       = "db.r5.large"  # Aurora MySQL 지원 인스턴스 타입
+# Aurora Cluster의 Writer 노드 (Primary Instance)
+resource "aws_rds_cluster_instance" "dev_aurora_instance" {
+  count                = 2  # ✅ 필요에 따라 Writer 1개 + Reader 1개 또는 다수 생성 가능
+  identifier           = "dev-aurora-instance-${count.index}"
+  cluster_identifier   = aws_rds_cluster.dev_aurora_cluster.id
+  instance_class       = "db.r5.large"  
   engine              = "aurora-mysql"
-  publicly_accessible  = false
+  publicly_accessible  = false  
   apply_immediately    = true
+
   tags = {
-    Name = "dev-aurora-secondary-instance-${count.index}"
+    Name = "dev-aurora-instance-${count.index}"
   }
 }
 
-# 보안 그룹 생성 (EKS 연계)
+# Aurora 보안 그룹
 module "dev_aurora_sg" {
   source = "../modules/security_group"
   name   = "dev-aurora-sg"
@@ -53,7 +57,7 @@ module "dev_aurora_sg" {
       from_port   = 3306
       to_port     = 3306
       protocol    = "tcp"
-      cidr_blocks = ["10.1.0.0/16"]  # VPC 내부에서만 접근 가능하도록 설정
+      cidr_blocks = ["10.0.0.0/16"]  
     }
   ]
   egress_rules = [
@@ -66,23 +70,23 @@ module "dev_aurora_sg" {
   ]
 }
 
-# Aurora 보조 클러스터 출력값
-output "aurora_secondary_cluster_endpoint" {
-  description = "Endpoint of the Aurora Secondary Cluster (EKS)"
-  value       = aws_rds_cluster.dev_aurora_secondary_cluster.endpoint
+# Aurora DB 엔드포인트 출력값
+output "aurora_cluster_endpoint" {
+  description = "Writer endpoint of the Aurora Cluster (Dev)"
+  value       = aws_rds_cluster.dev_aurora_cluster.endpoint
 }
 
-output "aurora_secondary_reader_endpoint" {
-  description = "Reader endpoint of the Aurora Secondary Cluster (EKS)"
-  value       = aws_rds_cluster.dev_aurora_secondary_cluster.reader_endpoint
+output "aurora_reader_endpoint" {
+  description = "Reader endpoint of the Aurora Cluster (Dev)"
+  value       = aws_rds_cluster.dev_aurora_cluster.reader_endpoint
 }
 
-output "aurora_secondary_security_group_id_eks" {
-  description = "Security Group ID associated with the Aurora Secondary Cluster (EKS)"
+output "aurora_security_group_id" {
+  description = "Security Group ID associated with the Aurora Cluster (Dev)"
   value       = module.dev_aurora_sg.security_group_id
 }
 
-output "aurora_secondary_subnet_group_name_eks" {
-  description = "Subnet Group Name of the Aurora Secondary Cluster (EKS)"
+output "aurora_subnet_group_name" {
+  description = "Subnet Group Name of the Aurora Cluster (Dev)"
   value       = aws_db_subnet_group.dev_aurora_subnet_group.name
 }
