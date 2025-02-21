@@ -1,6 +1,6 @@
-resource "aws_security_group" "eks_sg" {
-  name   = "eks_sg"
-  vpc_id = module.vpc-eks.vpc_id
+resource "aws_security_group" "dr_eks_sg" {
+  name   = "dr-eks-sg"
+  vpc_id = module.dr_eks_vpc.vpc_id
 
   ingress {
     from_port   = 80
@@ -17,9 +17,7 @@ resource "aws_security_group" "eks_sg" {
   }
 }
 
-
-
-module "eks" {
+module "dr_eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
@@ -28,10 +26,10 @@ module "eks" {
   cluster_name    = "eks_cluster"
   cluster_version = "1.32"
 
-  vpc_id                         = module.vpc-eks.vpc_id
-  subnet_ids                     = module.vpc-eks.private_subnets
-  cluster_security_group_id      = aws_security_group.eks_sg.id
-  cluster_additional_security_group_ids = [aws_security_group.eks_sg.id]
+  vpc_id                         = module.dr_eks_vpc.vpc_id
+  subnet_ids                     = module.dr_eks_vpc.private_subnets
+  cluster_security_group_id      = aws_security_group.dr_eks_sg.id
+  cluster_additional_security_group_ids = [aws_security_group.dr_eks_sg.id]
   cluster_endpoint_public_access = true
 
   eks_managed_node_group_defaults = {
@@ -46,7 +44,7 @@ module "eks" {
 
       min_size     = 1
       max_size     = 3
-      desired_size = 2
+      desired_size = 1
     }
 
     two = {
@@ -56,10 +54,9 @@ module "eks" {
 
       min_size     = 1
       max_size     = 3
-      desired_size = 2
+      desired_size = 1
     }
   }
-
 }
 
 module "eks_aws_auth" {
@@ -111,33 +108,33 @@ module "eks_aws_auth" {
 }
 
 
-data "aws_eks_cluster" "default" {
-  name = module.eks.cluster_name
-  depends_on = [module.eks]
+data "aws_eks_cluster" "dr_eks_cluster" {
+  name = module.dr_eks.cluster_name
+  depends_on = [module.dr_eks]
 }
 
-data "aws_eks_cluster_auth" "default" {
-  name = module.eks.cluster_name
-  depends_on = [module.eks]
+data "aws_eks_cluster_auth" "dr_eks_cluster_path" {
+  name = module.dr_eks.cluster_name
+  depends_on = [module.dr_eks]
 }
 
 provider "kubernetes" {
-  host                   = data.aws_eks_cluster.default.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.default.certificate_authority[0].data)
-  token                  = data.aws_eks_cluster_auth.default.token
+  host                   = data.aws_eks_cluster.dr_eks_cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.dr_eks_cluster.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.dr_eks_cluster_path.token
 }
 
-output "eks_cluster_id" {
+output "dr_eks_cluster_id" {
   description = "EKS 클러스터의 ID"
-  value       = module.eks.cluster_id
+  value       = module.dr_eks.cluster_id
 }
 
-output "eks_cluster_endpoint" {
+output "dr_eks_cluster_endpoint" {
   description = "EKS 클러스터의 엔드포인트 URL"
-  value       = module.eks.cluster_endpoint
+  value       = module.dr_eks.cluster_endpoint
 }
 
-output "eks_cluster_security_group_id" {
+output "dr_eks_cluster_security_group_id" {
   description = "EKS 클러스터에 연결된 보안 그룹 ID"
-  value       = module.eks.cluster_security_group_id
+  value       = module.dr_eks.cluster_security_group_id
 }

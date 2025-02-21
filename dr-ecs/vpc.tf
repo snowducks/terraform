@@ -1,4 +1,4 @@
-module "vpc-ecs" {
+module "dr_ecs_vpc" {
   source = "../modules/vpc"  # 모듈 경로 설정
 
   vpc_name  = "dr-vpc-ecs"
@@ -12,14 +12,14 @@ module "vpc-ecs" {
 
 
 # ECS VPC 출력값
-output "ecs_vpc_id" {
-  value = module.vpc-ecs.vpc_id
+output "dr_ecs_vpc_id" {
+  value = module.dr_ecs_vpc.vpc_id
 }
 
-output "ecs_public_subnets" {
-  value = module.vpc-ecs.public_subnets
+output "dr_ecs_public_subnets" {
+  value = module.dr_ecs_vpc.public_subnets
 }
 
-output "ecs_private_subnets" {
-  value = module.vpc-ecs.private_subnets
+output "dr_ecs_private_subnets" {
+  value = module.dr_ecs_vpc.private_subnets
 }

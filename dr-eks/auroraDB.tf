@@ -1,5 +1,3 @@
-
-
 # 서브넷 그룹 생성
 resource "aws_db_subnet_group" "aurora_subnet_group_eks" {
   name       = "aurora-subnet-group-eks"
