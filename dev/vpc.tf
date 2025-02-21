@@ -1,4 +1,4 @@
-module "vpc" {
+module "dev_vpc" {
   source = "../modules/vpc"  # 모듈 경로 설정
 
   vpc_name  = "dev-vpc"
@@ -22,7 +22,7 @@ module "vpc" {
 }
 
 # 출력값 확인
-output "vpc_id" {
-  value = module.vpc.vpc_id 
+output "dev_vpc_id" {
+  value = module.dev_vpc.vpc_id 
 }
 

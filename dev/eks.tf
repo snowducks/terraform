@@ -1,6 +1,6 @@
 resource "aws_security_group" "dev_eks_sg" {
   name   = "dev-eks-sg"
-  vpc_id = module.vpc.vpc_id
+  vpc_id = module.dev_vpc.vpc_id
 
   ingress {
     from_port   = 80
@@ -18,7 +18,7 @@ resource "aws_security_group" "dev_eks_sg" {
 }
 
 
-module "eks" {
+module "dev_eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
@@ -28,8 +28,8 @@ module "eks" {
   cluster_name    = "dev-eks-cluster"
   cluster_version = "1.32"
 
-  vpc_id                         = module.vpc.vpc_id
-  subnet_ids                     = module.vpc.private_subnets
+  vpc_id                         = module.dev_vpc.vpc_id
+  subnet_ids                     = module.dev_vpc.private_subnets
   cluster_security_group_id      = aws_security_group.dev_eks_sg.id
   cluster_additional_security_group_ids = [aws_security_group.dev_eks_sg.id]
   cluster_endpoint_public_access = true
@@ -110,13 +110,13 @@ module "eks_aws_auth" {
 }
 
 data "aws_eks_cluster" "dev_eks_cluster" {
-  name = module.eks.cluster_name
-  depends_on = [module.eks]
+  name = module.dev_eks.cluster_name
+  depends_on = [module.dev_eks]
 }
 
 data "aws_eks_cluster_auth" "default" {
-  name = module.eks.cluster_name
-  depends_on = [module.eks]
+  name = module.dev_eks.cluster_name
+  depends_on = [module.dev_eks]
 }
 
 provider "kubernetes" {
@@ -126,16 +126,16 @@ provider "kubernetes" {
 }
 
 output "eks_cluster_id" {
-  description = "EKS 클러스터의 ID"
-  value       = module.eks.cluster_id
+  description = "dev 환경 EKS 클러스터의 ID"
+  value       = module.dev_eks.cluster_id
 }
 
 output "eks_cluster_endpoint" {
-  description = "EKS 클러스터의 엔드포인트 URL"
-  value       = module.eks.cluster_endpoint
+  description = "dev 환경 EKS 클러스터의 엔드포인트 URL"
+  value       = module.dev_eks.cluster_endpoint
 }
 
 output "eks_cluster_security_group_id" {
-  description = "EKS 클러스터에 연결된 보안 그룹 ID"
-  value       = module.eks.cluster_security_group_id
+  description = "dev 환경 EKS 클러스터에 연결된 보안 그룹 ID"
+  value       = module.dev_eks.cluster_security_group_id
 }

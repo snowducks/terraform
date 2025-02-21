@@ -7,7 +7,7 @@ resource "aws_key_pair" "ec2_key" {
 resource "aws_security_group" "dev_jenkins_sg" {
   name        = "dev-jenkins-security-group"
   description = "Allow access to Jenkins from Bastion"
-  vpc_id = module.vpc.vpc_id
+  vpc_id = module.dev_vpc.vpc_id
 
   ingress{
     from_port       = 22
@@ -38,14 +38,14 @@ resource "aws_security_group" "dev_jenkins_sg" {
 resource "aws_security_group" "dev_bastion_sg" {
   name        = "dev-bastion-security-group"
   description = "Allow SSH from the internet"
-  vpc_id = module.vpc.vpc_id
+  vpc_id = module.dev_vpc.vpc_id
 
-  # SSH (포트 22) - 외부에서 접근 가능 (IP 제한 가능)
+  # SSH
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["115.88.240.0/24"]  # 보안상 특정 IP로 제한하는 것이 좋음
+    cidr_blocks = ["115.88.240.0/24"]  # 보안상 특정 IP 제한
   }
 
   egress {
@@ -65,7 +65,7 @@ resource "aws_instance" "dev_jenkin_instance" {
   ami             = "ami-0077297a838d6761d"  # Ubuntu Server 22.04
   instance_type   = "t2.micro"
   key_name        = aws_key_pair.ec2_key.key_name
-  subnet_id       = module.vpc.private_subnets[0]  # 프라이빗 서브넷 사용
+  subnet_id       = module.dev_vpc.private_subnets[0]  # 프라이빗 서브넷 사용
   security_groups = [aws_security_group.dev_jenkins_sg.id]
 
   tags = {
@@ -78,7 +78,7 @@ resource "aws_instance" "dev_bastion_instance" {
   ami             = "ami-0077297a838d6761d"  # Ubuntu Server 22.04
   instance_type   = "t2.micro"
   key_name        = aws_key_pair.ec2_key.key_name
-  subnet_id       = module.vpc.public_subnets[0]  # 퍼블릭 서브넷 사용
+  subnet_id       = module.dev_vpc.public_subnets[0]  # 퍼블릭 서브넷 사용
   security_groups = [aws_security_group.dev_bastion_sg.id]
 
   tags = {
@@ -89,7 +89,7 @@ resource "aws_instance" "dev_bastion_instance" {
 # 탄력적 IP 할당
 resource "aws_eip" "dev_bastion_eip" {
   instance = aws_instance.dev_bastion_instance.id
-  domain   = "vpc"
+  domain   = "dev_vpc"
 
   tags = {
     Name = "dev-bastion-eip"
