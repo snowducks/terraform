@@ -6,7 +6,7 @@ resource "aws_db_subnet_group" "dev_aurora_subnet_group" {
   }
 }
 
-data "terraform_remote_state" "dev_aurora_primary_state" {
+data "terraform_remote_state" "prod_aurora_primary_state" {
   backend = "s3"
   config = {
     bucket = "prod-snowduck-terraform-state"
@@ -18,7 +18,7 @@ data "terraform_remote_state" "dev_aurora_primary_state" {
 # Aurora 보조 클러스터 생성 (EKS 연계)
 resource "aws_rds_cluster" "dev_aurora_secondary_cluster" {
   cluster_identifier        = "dev-aurora-secondary-cluster"
-  global_cluster_identifier  = data.terraform_remote_state.dev_aurora_primary_state.outputs.aurora_global_cluster_id
+  global_cluster_identifier  = data.terraform_remote_state.prod_aurora_primary_state.outputs.aurora_global_cluster_id
   engine                    = "aurora-mysql"
   engine_version            = "8.0.mysql_aurora.3.04.2"  # 최신 지원 버전으로 변경
   db_subnet_group_name      = aws_db_subnet_group.dev_aurora_subnet_group.name
