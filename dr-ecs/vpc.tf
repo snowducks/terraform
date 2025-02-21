@@ -9,14 +9,14 @@ module "dr_ecs_vpc" {
   
   availability_zones = ["us-east-2a","us-east-2c"]
 
-    nat_gateways = ["dr-vpc-nat-gw-1", "dr-vpc-nat-gw-2"]
+  nat_gateways = ["dr-ecs-nat-gw-1", "dr-ecs-nat-gw-2"]
 
-  public_subnets_name  = ["dr-vpc-public-subnet-1", "dr-vpc-public-subnet-2"]
-  private_subnets_name = ["dr-vpc-private-subnet-1", "dr-vpc-private-subnet-2"]
+  public_subnets_name  = ["dr-ecs-public-subnet-1", "dr-ecs-public-subnet-2"]
+  private_subnets_name = ["dr-ecs-private-subnet-1", "dr-ecs-private-subnet-2"]
 
-  internet_gateway  = "dr-vpc-igw"
-  public_route_table = "dr-vpc-public-rt"
-  private_route_tables = ["dr-vpc-private-rt-1", "dr-vpc-private-rt-2"]
+  internet_gateway  = "dr-ecs-igw"
+  public_route_table = "dr-ecs-public-rt"
+  private_route_tables = ["dr-ecs-private-rt-1", "dr-ecs-private-rt-2"]
 }
 
 
