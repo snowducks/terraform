@@ -1,6 +1,6 @@
 # Terraform 상태 잠금을 위한 DynamoDB 테이블 생성
-resource "aws_dynamodb_table" "terraform_locks_dr_ecs" {
-  name         = "terraform-locks-dr-ecs"
+resource "aws_dynamodb_table" "dr_ecs_terraform_locks" {
+  name         = "dr-ecs-terraform-locks"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 

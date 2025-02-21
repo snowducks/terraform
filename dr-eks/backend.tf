@@ -1,11 +1,11 @@
 terraform {
  backend "s3" {
  # Replace this with your bucket name!
- bucket = "snowduck-dr-eks-terraform-state"
+ bucket = "dr-eks-snowduck-terraform-state"
  key = "dr-eks/state-storage/terraform.tfstate"
- region = "us-east-2"
+ region = "ap-southeast-1"
  # Replace this with your DynamoDB table name!
- dynamodb_table = "terraform-locks-dr-eks"
+ dynamodb_table = "dr-eks-terraform-locks"
  encrypt = true
  }
 }
