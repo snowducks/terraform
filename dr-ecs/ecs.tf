@@ -114,7 +114,7 @@ resource "aws_lb" "dr_ecs_lb" {
   name               = "dr-ecs-lb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.ecs_sg.id]
+  security_groups    = [aws_security_group.dr_ecs_sg.id]
   subnets           = module.dr_ecs_vpc.public_subnets
 }
 
