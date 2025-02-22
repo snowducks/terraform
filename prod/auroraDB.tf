@@ -101,24 +101,24 @@ output "aurora_cluster_reader_endpoint" {
 }
 
 # RDS 클러스터의 보안 그룹 ID 출력
-output "aurora_security_group_id" {
+output "prod_aurora_security_group_id" {
   description = "Security Group ID associated with the Aurora Cluster"
   value       = module.prod_aurora_sg.security_group_id
 }
 
 # RDS 클러스터의 서브넷 그룹 이름 출력
-output "aurora_subnet_group_name" {
+output "prod_aurora_subnet_group_name" {
   description = "Subnet Group Name of the Aurora Cluster"
   value       = aws_db_subnet_group.prod_aurora_subnet_group.name
 }
 
-output "aurora_global_cluster_id" {
+output "prod_aurora_global_cluster_id" {
   description = "ID of the Aurora Global Cluster"
   value       = aws_rds_global_cluster.prod_aurora_global_cluster.id
 }
 
 
-output "aurora_read_instance_ids" {
+output "prod_aurora_read_instance_ids" {
   description = "List of Aurora Read Replica Instances"
   value       = aws_rds_cluster_instance.prod_aurora_read_replica[*].id
 }

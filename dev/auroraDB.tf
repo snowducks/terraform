@@ -1,4 +1,4 @@
-# Aurora Subnet Group (기존 코드 유지)
+# Aurora Subnet Group
 resource "aws_db_subnet_group" "dev_aurora_subnet_group" {
   name       = "dev-aurora-subnet-group"
   subnet_ids = module.dev_vpc.private_subnets

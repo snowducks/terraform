@@ -23,7 +23,7 @@ resource "aws_security_group" "prod_elasticache_sg" {
   }
 
   tags = {
-    Name = "elasticache-sg"
+    Name = "prod-elasticache-sg"
   }
 }
 

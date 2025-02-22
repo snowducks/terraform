@@ -17,7 +17,7 @@ resource "aws_security_group" "prod_eks_sg" {
   }
 }
 
-module "eks" {
+module "prod_eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
@@ -47,7 +47,6 @@ module "eks" {
       desired_size = 3
     }
   }
-
 }
 
 module "eks_aws_auth" {
@@ -99,33 +98,33 @@ module "eks_aws_auth" {
 }
 
 
-data "aws_eks_cluster" "default" {
-  name = module.eks.cluster_name
-  depends_on = [module.eks]
+data "aws_eks_cluster" "prod_eks_cluster" {
+  name = module.prod_eks.cluster_name
+  depends_on = [module.prod_eks]
 }
 
-data "aws_eks_cluster_auth" "default" {
-  name = module.eks.cluster_name
-  depends_on = [module.eks]
+data "aws_eks_cluster_auth" "prod_eks_cluster_auth" {
+  name = module.prod_eks.cluster_name
+  depends_on = [module.prod_eks]
 }
 
 provider "kubernetes" {
-  host                   = data.aws_eks_cluster.default.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.default.certificate_authority[0].data)
-  token                  = data.aws_eks_cluster_auth.default.token
+  host                   = data.aws_eks_cluster.prod_eks_cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.prod_eks_cluster.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.prod_eks_cluster_auth.token
 }
 
-output "eks_cluster_id" {
+output "prod_eks_cluster_id" {
   description = "EKS 클러스터의 ID"
-  value       = module.eks.cluster_id
+  value       = module.prod_eks.cluster_id
 }
 
-output "eks_cluster_endpoint" {
+output "prod_eks_cluster_endpoint" {
   description = "EKS 클러스터의 엔드포인트 URL"
-  value       = module.eks.cluster_endpoint
+  value       = module.prod_eks.cluster_endpoint
 }
 
-output "eks_cluster_security_group_id" {
+output "prod_eks_cluster_security_group_id" {
   description = "EKS 클러스터에 연결된 보안 그룹 ID"
-  value       = module.eks.cluster_security_group_id
+  value       = module.prod_eks.cluster_security_group_id
 }
