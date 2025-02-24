@@ -63,7 +63,7 @@ resource "aws_security_group" "dev_bastion_sg" {
 # EC2: Jenkins 서버
 resource "aws_instance" "dev_jenkin_instance" {
   ami             = "ami-0077297a838d6761d"  # Ubuntu Server 22.04
-  instance_type   = "t3.medium"
+  instance_type   = "t3.large"
   key_name        = aws_key_pair.ec2_key.key_name
   subnet_id       = module.dev_vpc.private_subnets[0]  # 프라이빗 서브넷 사용
   security_groups = [aws_security_group.dev_jenkins_sg.id]
