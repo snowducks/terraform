@@ -80,3 +80,15 @@ resource "aws_lb_listener" "prod_https_listener" {
     target_group_arn = aws_lb_target_group.prod_eks_tg.arn
   }
 }
+
+# ✅ PROD ALB DNS 이름 출력
+output "alb_dns_name" {
+  description = "Prod EKS ALB의 DNS 이름"
+  value       = aws_lb.prod_eks_alb.dns_name
+}
+
+# ✅ PROD ALB의 Route53 Zone ID 출력
+output "alb_zone_id" {
+  description = "Prod EKS ALB의 Route53 Zone ID"
+  value       = aws_lb.prod_eks_alb.zone_id
+}
