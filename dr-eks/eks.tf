@@ -9,6 +9,13 @@ resource "aws_security_group" "dr_eks_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -112,6 +119,10 @@ provider "kubernetes" {
   host                   = data.aws_eks_cluster.dr_eks_cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.dr_eks_cluster.certificate_authority[0].data)
   token                  = data.aws_eks_cluster_auth.dr_eks_cluster_path.token
+  depends_on = [
+    module.eks,                # ✅ EKS 클러스터가 완전히 생성된 후 실행
+    module.eks_aws_auth        # ✅ AWS IAM 인증이 완료된 후 실행
+  ]
 }
 
 output "dr_eks_cluster_id" {
