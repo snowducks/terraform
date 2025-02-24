@@ -7,7 +7,7 @@ module "dr_eks_vpc" {
   public_subnet_cidrs  = ["10.1.1.0/24", "10.1.2.0/24"]
   private_subnet_cidrs = ["10.1.3.0/24", "10.1.4.0/24", "10.1.5.0/24", "10.1.6.0/24"]
   
-  availability_zones = ["us-east-2a", "us-east-2c"]
+  availability_zones = ["ap-southeast-1a", "ap-southeast-1c"]
 
   nat_gateways = ["dr-eks-nat-gw-1", "dr-eks-nat-gw-2"]
 
