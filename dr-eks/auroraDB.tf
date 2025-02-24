@@ -18,8 +18,12 @@ data "terraform_remote_state" "aurora_primary_state" {
   }
 }
 
+data "aws_rds_cluster" "dr_eks_aurora_secondary" {
+  cluster_identifier = "dr-ecs-aurora-secondary-cluster"
+}
 
 # Aurora 보조 클러스터 생성 (EKS 연계)
+/*
 resource "aws_rds_cluster" "dr_eks_aurora_secondary" {
   cluster_identifier        = "dr-eks-aurora-secondary-cluster"
   global_cluster_identifier  = data.terraform_remote_state.aurora_primary_state.outputs.aurora_global_cluster_id
@@ -34,12 +38,14 @@ resource "aws_rds_cluster" "dr_eks_aurora_secondary" {
     Name = "dr-eks-aurora-secondary-cluster"
   }
 }
-
+*/
+ 
 # Aurora 보조 클러스터 (EKS) - Read Replica 인스턴스 추가
 resource "aws_rds_cluster_instance" "dr_eks_aurora_secondary_reader" {
-  count                = 2  # 읽기 전용 인스턴스 개수 (필요하면 조정 가능)
+  count                = 1  # 읽기 전용 인스턴스 개수 (필요하면 조정 가능)
   identifier           = "dr-eks-aurora-secondary-reader-${count.index}"
-  cluster_identifier   = aws_rds_cluster.dr_eks_aurora_secondary.id  # 보조 클러스터에 연결
+  #cluster_identifier   = aws_rds_cluster.dr_eks_aurora_secondary.id  # 보조 클러스터에 연결
+  cluster_identifier =  data.aws_rds_cluster.dr_eks_aurora_secondary.id
   instance_class       = "db.r5.large"  # Aurora MySQL 인스턴스 유형
   engine              = "aurora-mysql"
   publicly_accessible  = false  # 외부 접근 불가
@@ -78,15 +84,19 @@ module "dr_eks_aurora_sg" {
 
 
 # 🔹 Aurora DR 보조 클러스터 (EKS) 엔드포인트
+/*
 output "dr_eks_aurora_secondary_cluster_endpoint" {
   description = "Writer endpoint of the DR Aurora Secondary Cluster (EKS)"
   value       = aws_rds_cluster.dr_eks_aurora_secondary.endpoint
 }
+*/
 
+/*
 output "dr_eks_aurora_secondary_reader_endpoint" {
   description = "Reader endpoint of the DR Aurora Secondary Cluster (EKS)"
   value       = aws_rds_cluster.dr_eks_aurora_secondary.reader_endpoint
 }
+*/
 
 # 🔹 Aurora DR Read Replica 인스턴스 ID 목록
 output "dr_eks_aurora_secondary_reader_instances" {

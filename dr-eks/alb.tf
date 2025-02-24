@@ -67,6 +67,7 @@ resource "aws_lb_listener" "dr_eks_http_listener" {
   }
 }
 
+/*
 # ALB Listener 추가 (HTTPS)
 resource "aws_lb_listener" "dr_eks_https_listener" {
   load_balancer_arn = aws_lb.dr_eks_alb.arn
@@ -79,4 +80,4 @@ resource "aws_lb_listener" "dr_eks_https_listener" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.dr_eks_tg.arn
   }
-}
+  */
