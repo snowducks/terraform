@@ -118,7 +118,7 @@ data "aws_eks_cluster_auth" "dr_eks_cluster_path" {
 provider "kubernetes" {
   host                   = data.aws_eks_cluster.dr_eks_cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.dr_eks_cluster.certificate_authority[0].data)
-  token                  = data.aws_eks_cluster_auth.dr_eks_cluster_path.token
+  token                  = data.aws_eks_cluster_auth.dr_eks_cluster_path.token  
 }
 
 output "dr_eks_cluster_id" {
