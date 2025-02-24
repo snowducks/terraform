@@ -81,3 +81,27 @@ resource "aws_lb_listener" "dr_eks_https_listener" {
     target_group_arn = aws_lb_target_group.dr_eks_tg.arn
   }
   */
+
+# ✅ EKS ALB DNS 이름
+output "dr_eks_alb_dns_name" {
+  description = "DR EKS ALB의 DNS 이름"
+  value       = aws_lb.dr_eks_alb.dns_name
+}
+
+# ✅ EKS ALB의 Route53 Zone ID
+output "dr_eks_alb_zone_id" {
+  description = "DR EKS ALB의 Route53 Hosted Zone ID"
+  value       = aws_lb.dr_eks_alb.zone_id
+}
+
+# ✅ EKS ALB ARN (다른 리소스와 연동 시 편리함)
+output "dr_eks_alb_arn" {
+  description = "DR EKS ALB의 ARN"
+  value       = aws_lb.dr_eks_alb.arn
+}
+
+# ✅ EKS ALB Security Group ID
+output "dr_eks_alb_security_group_id" {
+  description = "DR EKS ALB 보안그룹 ID"
+  value       = module.dr_eks_alb_security_group.security_group_id
+}
