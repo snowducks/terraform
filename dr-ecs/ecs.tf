@@ -190,3 +190,7 @@ resource "aws_lb_listener" "frontend_listener" {
 # ✅ 출력값
 output "dr_ecs_cluster_id" { value = module.dr_ecs_cluster.cluster_id }
 output "dr_ecs_lb_dns_name" { value = aws_lb.dr_ecs_lb.dns_name }
+
+output "dr_ecs_lb_zone_id" { 
+  value = aws_lb.dr_ecs_lb.zone_id 
+}
