@@ -45,7 +45,7 @@ resource "aws_security_group" "dev_bastion_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/24"]  # 보안상 특정 IP 제한
+    cidr_blocks = ["0.0.0.0/0"]  # 보안상 특정 IP 제한
   }
 
   egress {

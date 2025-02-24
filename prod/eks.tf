@@ -113,6 +113,12 @@ provider "kubernetes" {
   host                   = data.aws_eks_cluster.default.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.default.certificate_authority[0].data)
   token                  = data.aws_eks_cluster_auth.default.token
+/* 이거 하면 왠지 그때 오류나던거 해결할듯한대
+  depends_on = [
+    module.eks,                # ✅ EKS 클러스터가 완전히 생성된 후 실행
+    module.eks_aws_auth        # ✅ AWS IAM 인증이 완료된 후 실행
+  ]
+  */
 }
 
 output "eks_cluster_id" {

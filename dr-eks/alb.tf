@@ -9,13 +9,13 @@ module "dr_eks_alb_security_group" {
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"] # HTTP 개방 (보안 필요 시 수정)
+      cidr_blocks = ["0.0.0.0/0"] # HTTP 개방 
     },
     {
       from_port   = 443
       to_port     = 443
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"] # HTTPS 개방 (보안 필요 시 수정)
+      cidr_blocks = ["0.0.0.0/0"] # HTTPS 개방
     }
   ]
 
@@ -32,10 +32,10 @@ module "dr_eks_alb_security_group" {
 # ALB 생성
 resource "aws_lb" "dr_eks_alb" {
   name               = "dr-eks-alb"
-  internal           = true
+  internal           = false
   load_balancer_type = "application"
   security_groups    = [module.dr_eks_alb_security_group.security_group_id]
-  subnets = [module.dr_eks_vpc.private_subnets[0], module.dr_eks_vpc.private_subnets[3]]  
+  subnets = module.dr_eks_vpc.public_subnets
 }
 
 # Target Group 생성 (EKS 서비스와 연결)
@@ -44,7 +44,7 @@ resource "aws_lb_target_group" "dr_eks_tg" {
   port     = 80
   protocol = "HTTP"
   vpc_id   = module.dr_eks_vpc.vpc_id
-  target_type = "instance"
+  target_type = "ip"
 
   health_check {
     path                = "/"
