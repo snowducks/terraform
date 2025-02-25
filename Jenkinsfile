@@ -53,7 +53,7 @@ pipeline {
                     // 아래는 예시로, YOUR_ZONE_ID와 route53-change.json 파일은 실제 값으로 대체하세요.
                     sh '''
                       aws route53 change-resource-record-sets \
-                        --hosted-zone-id YOUR_ZONE_ID \
+                        --hosted-zone-id {$AWS_REGION} \
                         --change-batch file://route53-change.json
                     '''
                 }
@@ -116,10 +116,10 @@ pipeline {
 
     post {
         success {
-            echo "Jenkins pipeline이 성공적으로 완료되었습니다."
+            slackSend channel: '#snowduck-alert', message: "DR 구축 완료"
         }
         failure {
-            echo "Jenkins pipeline 실행 중 문제가 발생하였습니다."
+            slackSend channel: '#snowduck-alert', message: "DR 구축 실패"
         }
     }
 }
