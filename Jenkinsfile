@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        terraform "terraform"
+        terraform 'terraform'
     }
 
     // environment {
@@ -22,6 +22,7 @@ pipeline {
                 checkout scm
             }
         }
+        
         // stage('Webhook Trigger Check') {
         //     steps {
         //         script {
