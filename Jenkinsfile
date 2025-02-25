@@ -1,14 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        // AWS 관련 환경변수 (필요 시 Jenkins Credential Binding 사용)
-        //AWS_REGION = "ap-southeast-1"
-        
-
-        // 예: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY 등이 필요하다면 credentials에서 바인딩
-    }
-
     stages {
         stage("Terraform Init") {
             steps {
