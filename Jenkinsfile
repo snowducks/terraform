@@ -22,7 +22,7 @@ pipeline {
                 checkout scm
             }
         }
-        
+
         // stage('Webhook Trigger Check') {
         //     steps {
         //         script {
@@ -38,7 +38,7 @@ pipeline {
             steps {
                 echo "Terraform 환경 초기화 (dr-eks 디렉토리)..."
                 // SCM에서 체크아웃된 코드 내 terraform/dr-eks 디렉토리로 이동 후 terraform init 실행
-                dir("terraform/dr-eks") {
+                dir("./dr-eks") {
                     sh "ls -la" // 파일 확인
                     sh "terraform init"
                 }
