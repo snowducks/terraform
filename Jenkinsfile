@@ -1,7 +1,34 @@
 pipeline {
     agent any
 
+    // environment {
+    //     // AWS 관련 환경변수 (필요 시 Jenkins Credential Binding 사용)
+    //     AWS_REGION = "ap-southeast-1"
+    //     // 예: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY 등이 필요하다면 credentials에서 바인딩
+    // }
+
+    parameters {
+        // DR 이벤트 여부를 원격 빌드 트리거 또는 다른 외부 시스템으로부터 전달받음
+        booleanParam(name: 'dr_event', defaultValue: false, description: 'Is this a Disaster Recovery (DR) event?')
+    }
+
     stages {
+        stage('SCM Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Webhook Trigger Check') {
+            steps {
+                script {
+                    if (params.dr_event) {
+                        error "Not a DR event. Aborting pipeline."
+                    }
+                    echo "DR 이벤트 감지"
+                }
+            }
+        }
+
         stage("Terraform Init") {
             steps {
                 echo "Terraform 환경 초기화 (dr-eks 디렉토리)..."
@@ -67,6 +94,18 @@ pipeline {
             }
         }
         */
+
+
+
+
+
+
+
+
+
+
+
+        // 여기가 stage 끝임
     }
 
     post {
