@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        terraform "terraform"
+    }
+
     // environment {
     //     // AWS 관련 환경변수 (필요 시 Jenkins Credential Binding 사용)
     //     AWS_REGION = "ap-southeast-1"
