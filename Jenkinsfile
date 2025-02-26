@@ -5,11 +5,13 @@ pipeline {
         terraform 'terraform'
     }
 
-    // environment {
-    //     // AWS 관련 환경변수 (필요 시 Jenkins Credential Binding 사용)
-    //     AWS_REGION = "ap-southeast-1"
-    //     // 예: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY 등이 필요하다면 credentials에서 바인딩
-    // }
+    environment {
+        // AWS 관련 환경변수 (필요 시 Jenkins Credential Binding 사용)
+        AWS_REGION = "ap-southeast-1"
+        // 예: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY 등이 필요하다면 credentials에서 바인딩
+        
+        AWS_CREDENTIALS = "aws-ecr-credential"
+    }
 
     // parameters {
     //     // DR 이벤트 여부를 원격 빌드 트리거 또는 다른 외부 시스템으로부터 전달받음
@@ -36,12 +38,17 @@ pipeline {
 
         stage("Terraform Init") {
             steps {
-                echo "Terraform 환경 초기화 (dr-eks 디렉토리)..."
-                // SCM에서 체크아웃된 코드 내 terraform/dr-eks 디렉토리로 이동 후 terraform init 실행
+                script {
                 withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding', 
-                    credentialsId: 'aws-ecr-credential'
+                    credentialsId: ${AWS_CREDENTIALS},
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]) {
+                }
+                echo "Terraform 환경 초기화 (dr-eks 디렉토리)..."
+                // SCM에서 체크아웃된 코드 내 terraform/dr-eks 디렉토리로 이동 후 terraform init 실행
+
                     
                 }
                 dir("./dr-eks") {
