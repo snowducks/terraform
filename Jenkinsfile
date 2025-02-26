@@ -25,7 +25,7 @@ pipeline {
         stage('Webhook Trigger Check') {
             steps {
                 script {
-                    if (!params.dr_event) {
+                    if (params.dr_event) {
                         error "Not a DR event. Aborting pipeline."
                     }
                     echo "DR 이벤트 감지"
@@ -79,6 +79,7 @@ pipeline {
         //         }
         //     }
         // }
+
 
         // Helm CLI 설치(Helm 3)
         // stage("Install Helm on Jenkins Agent") {
