@@ -79,12 +79,12 @@ pipeline {
         //     }
         // }
 
-        //
-        stage("Download Helm Chart") {
-            steps{
+        // //
+        // stage("Download Helm Chart") {
+        //     steps{
 
-            }
-        }
+        //     }
+        // }
         
         //helm install {이름} . -f values.yaml -n front
         //helm install {이름} . -f values.yaml -n back 
