@@ -45,39 +45,40 @@ pipeline {
             }
         }
         
-        // stage("Route53 Weight Update") {
-        //     steps {
-        //         script {
-        //             echo "Route53의 가중치 변경 실행 중..."
-        //             // Route53 변경을 위한 JSON 파일이나 인라인 명령어 사용
-        //             // 아래는 예시로, YOUR_ZONE_ID와 route53-change.json 파일은 실제 값으로 대체하세요.
-        //             sh '''
-        //                 terraform apply \
-        //                     -target=aws_route53_record.prod \
-        //                     -target=aws_route53_record.dr_ecs \
-        //                     -target=aws_route53_record.dr_eks
-        //             '''
-        //         }
-        //     }
-        // }
+        stage("Route53 Weight Update") {
+            steps {
+                // script {
+                //     echo "Route53의 가중치 변경 실행 중..."
+                //     // Route53 변경을 위한 JSON 파일이나 인라인 명령어 사용
+                //     // 아래는 예시로, YOUR_ZONE_ID와 route53-change.json 파일은 실제 값으로 대체하세요.
+                //     sh '''
+                //         terraform apply \
+                //             -target=aws_route53_record.prod \
+                //             -target=aws_route53_record.dr_ecs \
+                //             -target=aws_route53_record.dr_eks
+                //     '''
+                // }
+                sleep time: 5, unit: 'SECONDS'
+            }
+        }
     
-        // stage("eks Apply") {
-        //     steps {
-        //         echo "eks.tf 파일 기반으로 EKS 클러스터 생성/업데이트..."
-        //         dir("./dr-eks") {
-        //             // 먼저 plan을 수행한 후, apply 실행 (tfplan 파일은 필요에 따라 사용)
-        //             sh '''
-        //                 terraform apply \
-        //                     -target=module.dr_eks \
-        //                     -target=module.eks_aws_auth \
-        //                     -target=data.aws_eks_cluster.dr_eks_cluster \
-        //                     -target=data.aws_eks_cluster_auth.dr_eks_cluster_path \
-        //                     -target=provider.kubernetes \
-        //                     -target=aws_security_group.dr_eks_sg
-        //             '''
-        //         }
-        //     }
-        // }
+        stage("eks Apply") {
+            steps {
+                echo "eks.tf 파일 기반으로 EKS 클러스터 생성/업데이트..."
+                dir("./dr-eks") {
+                    // 먼저 plan을 수행한 후, apply 실행 (tfplan 파일은 필요에 따라 사용)
+                    sh '''
+                        terraform apply \
+                            -target=module.dr_eks \
+                            -target=module.eks_aws_auth \
+                            -target=data.aws_eks_cluster.dr_eks_cluster \
+                            -target=data.aws_eks_cluster_auth.dr_eks_cluster_path \
+                            -target=provider.kubernetes \
+                            -target=aws_security_group.dr_eks_sg
+                    '''
+                }
+            }
+        }
 
         // Helm CLI 설치(Helm 3)
         // stage("Install Helm on Jenkins Agent") {
@@ -101,8 +102,8 @@ pipeline {
         //         script {
         //             withAWS(credentials: AWS_CREDENTIALS, region: AWS_REGION) {
         //                 sh """
-        //                   echo "Configuring kubeconfig for cluster: your-eks-cluster-name"
-        //                   aws eks update-kubeconfig --name your-eks-cluster-name --region ${AWS_REGION}
+        //                   echo "Configuring kubeconfig for cluster: dr-eks-cluster"
+        //                   aws eks update-kubeconfig --name dr-eks-cluster --region ${AWS_REGION}
         //                 """
         //             }
         //         }
@@ -131,7 +132,7 @@ pipeline {
         //     }
         // }
 
-        // --set clusterName=your-eks-cluster-name
+        // --set clusterName=dr-eks-cluster
         // --set region=${AWS_REGION}
         // 필요 시 --set vpcId=vpc-123456 같은 방식으로 VPC ID를 지정해줄 수 있습니다(일부 경우 자동 인식).
 
@@ -225,6 +226,7 @@ pipeline {
         //         }
         //     }
         // }
+
         //helm install {이름} . -f values.yaml -n front
         //helm install {이름} . -f values.yaml -n back 
     
