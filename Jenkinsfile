@@ -39,18 +39,15 @@ pipeline {
         stage("Terraform Init") {
             steps {
                 script {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding', 
-                    credentialsId: ${AWS_CREDENTIALS},
-                    accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
-                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                ]]) {
+                    withCredentials([[
+                        $class: 'AmazonServciesCredentailsBinding',
+                        credentialsId: 'AWS_CREDENTIAL',
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                    ]])
                 }
                 echo "Terraform 환경 초기화 (dr-eks 디렉토리)..."
                 // SCM에서 체크아웃된 코드 내 terraform/dr-eks 디렉토리로 이동 후 terraform init 실행
-
-                    
-                }
                 dir("./dr-eks") {
                     sh "terraform init"
                 }
