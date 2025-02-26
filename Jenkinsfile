@@ -136,7 +136,7 @@ pipeline {
         // 필요 시 --set vpcId=vpc-123456 같은 방식으로 VPC ID를 지정해줄 수 있습니다(일부 경우 자동 인식).
 
         // ========== 4개 레포지토리를 순차적으로 배포 ==========
-
+        
         // https://github.com/snowducks/helm-olive-young-fe.git
         // https://github.com/snowducks/helm-websocket-server.git
         // https://github.com/snowducks/helm-kafka-producer.git
@@ -154,13 +154,15 @@ pipeline {
                     // 2) FE Helm Chart 배포
                     dir("fe/helm") {
                         sh """
-                          helm install fe . -f values.yaml -n front --create-namespace
+                            helm upgrade -i fe . \
+                                --namespace front \
+                                --create-namespace \
+                                -f values.yaml
                         """
                     }
                 }
             }
         }
-
         stage("Deploy WebSocket Server") {
             steps {
                 script {
@@ -173,9 +175,9 @@ pipeline {
                     // 2) WebSocket Helm Chart 배포
                     dir("websocket-server/helm") {
                         sh """
-                          helm install websocket-server . \
-                            -f values.yaml \
-                            -n back --create-namespace
+                          helm upgrade -i websocket-server . \
+                            --namespace back \
+                            -f values.yaml
                         """
                     }
                 }
@@ -194,9 +196,9 @@ pipeline {
                     // 2) Producer Helm Chart 배포
                     dir("kafka-producer/helm") {
                         sh """
-                          helm install kafka-producer . \
-                            -f values.yaml \
-                            -n back \
+                          helm upgrade -i kafka-producer . \
+                            --namespace back \
+                            -f values.yaml
                         """
                     }
                 }
@@ -215,8 +217,8 @@ pipeline {
                     // 2) Consumer Helm Chart 배포
                     dir("kafka-consumer/helm") {
                         sh """
-                          helm install kafka-consumer . \
-                            -n back \
+                          helm upgrade -i kafka-consumer . \
+                            --namespace back \
                             -f values.yaml
                         """
                     }
