@@ -6,10 +6,7 @@ pipeline {
     }
 
     environment {
-        // AWS 관련 환경변수 (필요 시 Jenkins Credential Binding 사용)
         AWS_REGION = "ap-southeast-1"
-        // 예: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY 등이 필요하다면 credentials에서 바인딩
-        
         AWS_CREDENTIALS = "aws-ecr-credential"
     }
 
@@ -39,17 +36,11 @@ pipeline {
         stage("Terraform Init") {
             steps {
                 script {
-                    withCredentials([[
-                        $class: 'AmazonServciesCredentailsBinding',
-                        credentialsId: 'AWS_CREDENTIAL',
-                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                    ]])
-                }
-                echo "Terraform 환경 초기화 (dr-eks 디렉토리)..."
-                // SCM에서 체크아웃된 코드 내 terraform/dr-eks 디렉토리로 이동 후 terraform init 실행
-                dir("./dr-eks") {
-                    sh "terraform init"
+                    withAWS(credentials: AWS_CREDENTIALS, region: AWS_REGION) {
+                        dir("./dr-eks") {
+                            sh "terraform init"
+                        }
+                    }
                 }
             }
         }
@@ -87,6 +78,18 @@ pipeline {
         //         }
         //     }
         // }
+
+        //
+        stage("Download Helm Chart") {
+            steps{
+
+            }
+        }
+        
+        //helm install {이름} . -f values.yaml -n front
+        //helm install {이름} . -f values.yaml -n back 
+
+
     
         // 여기가 stage 끝임
     }
