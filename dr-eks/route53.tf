@@ -7,8 +7,8 @@ resource "aws_route53_record" "prod" {
   set_identifier = "서울 rout53"
 
   alias {
-    name                   = "prod-eks-alb-1407229473.ap-northeast-2.elb.amazonaws.com"
-    zone_id                = "ZWKZPGTI48KDX"
+    name                   = "d3d7fig0qrvk2p.cloudfront.net"
+    zone_id                = "Z2FDTNDATAQYW2"
     evaluate_target_health = true
   }
 
@@ -24,7 +24,7 @@ resource "aws_route53_record" "dr_ecs" {
   set_identifier = "dr-ecs 로드밸런서"
 
   alias {
-    name                   = "dr-ecs-lb-564638976.ap-southeast-1.elb.amazonaws.com"
+    name                   = "dualstack.dr-ecs-lb-564638976.ap-southeast-1.elb.amazonaws.com"
     zone_id                = "Z1LMS91P8CMLE5"
     evaluate_target_health = true
   }
