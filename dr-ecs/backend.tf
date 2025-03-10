@@ -1,3 +1,4 @@
+# Terraform 상태 저장소를 S3 백엔드로 설정
 terraform {
  backend "s3" {
  # Replace this with your bucket name!

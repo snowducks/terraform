@@ -1,3 +1,4 @@
+# VPC 생성 (ECS용)
 module "dr_ecs_vpc" {
   source = "../modules/vpc"  # 모듈 경로 설정
 
@@ -21,14 +22,18 @@ module "dr_ecs_vpc" {
 
 
 # ECS VPC 출력값
+
 output "dr_ecs_vpc_id" {
-  value = module.dr_ecs_vpc.vpc_id
+  description = "ECS 클러스터가 속한 VPC의 ID"
+  value       = module.dr_ecs_vpc.vpc_id
 }
 
 output "dr_ecs_public_subnets" {
-  value = module.dr_ecs_vpc.public_subnets
+  description = "ECS용 퍼블릭 서브넷 ID 목록"
+  value       = module.dr_ecs_vpc.public_subnets
 }
 
 output "dr_ecs_private_subnets" {
-  value = module.dr_ecs_vpc.private_subnets
+  description = "ECS용 프라이빗 서브넷 ID 목록"
+  value       = module.dr_ecs_vpc.private_subnets
 }

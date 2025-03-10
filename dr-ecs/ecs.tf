@@ -1,4 +1,4 @@
-# ✅ ECS 클러스터 생성
+# ECS 클러스터 생성
 module "dr_ecs_cluster" {
   source  = "terraform-aws-modules/ecs/aws"
   version = ">= 3.69, < 5.0"
@@ -6,7 +6,7 @@ module "dr_ecs_cluster" {
   cluster_name = "dr-ecs-cluster"
 }
 
-# ✅ ECS IAM 역할 (태스크 실행)
+# ECS IAM 역할 (태스크 실행)
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecs-task-execution-role"
 
@@ -22,7 +22,7 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   })
 }
 
-# ✅ IAM 정책 추가 (ECR Pull, SSM 접근)
+# IAM 정책 추가 (ECR Pull, SSM 접근)
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
@@ -35,10 +35,10 @@ resource "aws_iam_role_policy_attachment" "ecs_ecr_readonly_policy" {
 
 resource "aws_iam_role_policy_attachment" "ecs_ssm_secrets_access" {
   role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-# ✅ 보안 그룹 설정 (ECS, Kafka, ALB, Websocket)
+# 보안 그룹 설정 (ECS, Kafka, ALB, Websocket)
 resource "aws_security_group" "dr_ecs_sg" {
   vpc_id = module.dr_ecs_vpc.vpc_id
 
@@ -46,21 +46,21 @@ resource "aws_security_group" "dr_ecs_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]  # ALB를 통한 웹 접근 허용
   }
 
   ingress {
-    from_port   = 8080  # ✅ Websocket 포트 추가
+    from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [module.dr_ecs_vpc.vpc_cidr_block]  
   }
 
   ingress {
-    from_port   = 9092  # ✅ Kafka 포트 추가
+    from_port   = 9092
     to_port     = 9092
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [module.dr_ecs_vpc.vpc_cidr_block]  
   }
 
   egress {
@@ -71,9 +71,9 @@ resource "aws_security_group" "dr_ecs_sg" {
   }
 }
 
-# ✅ ECS Task Definitions
+# ECS Task Definitions
 
-# ✅ Kafka Consumer Task
+# Kafka Consumer Task
 resource "aws_ecs_task_definition" "kafka_consumer" {
   family                   = "kafka-consumer-task"
   network_mode             = "awsvpc"
@@ -94,7 +94,7 @@ resource "aws_ecs_task_definition" "kafka_consumer" {
   ])
 }
 
-# ✅ Kafka Producer Task
+# Kafka Producer Task
 resource "aws_ecs_task_definition" "kafka_producer" {
   family                   = "kafka-producer-task"
   network_mode             = "awsvpc"
@@ -115,7 +115,7 @@ resource "aws_ecs_task_definition" "kafka_producer" {
   ])
 }
 
-# ✅ Frontend Task
+# Frontend Task
 resource "aws_ecs_task_definition" "frontend" {
   family                   = "frontend-task"
   network_mode             = "awsvpc"
@@ -136,7 +136,7 @@ resource "aws_ecs_task_definition" "frontend" {
   ])
 }
 
-# ✅ Websocket Task
+# Websocket Task
 resource "aws_ecs_task_definition" "websocket" {
   family                   = "websocket-task"
   network_mode             = "awsvpc"
@@ -157,7 +157,7 @@ resource "aws_ecs_task_definition" "websocket" {
   ])
 }
 
-# ✅ Load Balancer 설정
+# Load Balancer 설정
 resource "aws_lb" "dr_ecs_lb" {
   name               = "dr-ecs-lb"
   internal           = false
@@ -174,7 +174,6 @@ resource "aws_lb_target_group" "frontend_tg" {
   target_type = "ip"
 }
 
-
 resource "aws_lb_listener" "frontend_listener" {
   load_balancer_arn = aws_lb.dr_ecs_lb.arn
   port              = 80
@@ -186,11 +185,17 @@ resource "aws_lb_listener" "frontend_listener" {
   }
 }
 
+output "dr_ecs_cluster_id" {
+  description = "ECS 클러스터 ID"
+  value       = module.dr_ecs_cluster.cluster_id
+}
 
-# ✅ 출력값
-output "dr_ecs_cluster_id" { value = module.dr_ecs_cluster.cluster_id }
-output "dr_ecs_lb_dns_name" { value = aws_lb.dr_ecs_lb.dns_name }
+output "dr_ecs_lb_dns_name" {
+  description = "ECS용 Load Balancer DNS 이름"
+  value       = aws_lb.dr_ecs_lb.dns_name
+}
 
-output "dr_ecs_lb_zone_id" { 
-  value = aws_lb.dr_ecs_lb.zone_id 
+output "dr_ecs_lb_zone_id" {
+  description = "ECS용 Load Balancer Zone ID"
+  value       = aws_lb.dr_ecs_lb.zone_id
 }
