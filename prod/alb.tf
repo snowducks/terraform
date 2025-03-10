@@ -1,6 +1,6 @@
-# security_group 모듈을 사용한 ALB 보안 그룹 생성
+# security_group 모듈을 사용한 ALB 보안 그룹
 module "prod_alb_security_group" {
-  source      = "../modules/security_group"  # 보안 그룹 모듈 경로
+  source      = "../modules/security_group"
   name        = "prod-alb-security-group"
   vpc_id      = module.prod_vpc.vpc_id
 
@@ -9,13 +9,13 @@ module "prod_alb_security_group" {
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"] # HTTP 개방 
+      cidr_blocks = ["0.0.0.0/0"]
     },
     {
       from_port   = 443
       to_port     = 443
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"] # HTTPS 개방
+      cidr_blocks = ["0.0.0.0/0"]
     }
   ]
 
@@ -32,13 +32,13 @@ module "prod_alb_security_group" {
 # ALB 생성
 resource "aws_lb" "prod_eks_alb" {
   name               = "prod-eks-alb"
-  internal           = false  # ALB 외부 위치
+  internal           = false
   load_balancer_type = "application"
   security_groups    = [module.prod_alb_security_group.security_group_id]
   subnets =  module.prod_vpc.public_subnets
 }
 
-# Target Group 생성 (EKS 서비스와 연결)
+# EKS 연결하는 target group 생성
 resource "aws_lb_target_group" "prod_eks_tg" {
   name     = "prod-eks-target-group"
   port     = 80
@@ -55,7 +55,7 @@ resource "aws_lb_target_group" "prod_eks_tg" {
   }
 }
 
-# ALB Listener 추가 (HTTP)
+# ALB Listener 생성
 resource "aws_lb_listener" "prod_http_listener" {
   load_balancer_arn = aws_lb.prod_eks_alb.arn
   port              = 80
@@ -67,7 +67,7 @@ resource "aws_lb_listener" "prod_http_listener" {
   }
 }
 
-# ALB Listener 추가 (HTTPS)
+# ALB Listener 추가
 resource "aws_lb_listener" "prod_https_listener" {
   load_balancer_arn = aws_lb.prod_eks_alb.arn
   port              = 443
@@ -81,14 +81,14 @@ resource "aws_lb_listener" "prod_https_listener" {
   }
 }
 
-# ✅ PROD ALB DNS 이름 출력
+# PROD ALB DNS 이름 출력
 output "alb_dns_name" {
-  description = "Prod EKS ALB의 DNS 이름"
+  description = "prod EKS ALB DNS 이름"
   value       = aws_lb.prod_eks_alb.dns_name
 }
 
-# ✅ PROD ALB의 Route53 Zone ID 출력
+# PROD ALB의 Route53 Zone ID 출력
 output "alb_zone_id" {
-  description = "Prod EKS ALB의 Route53 Zone ID"
+  description = "prod EKS ALB Route53 Zone ID"
   value       = aws_lb.prod_eks_alb.zone_id
 }

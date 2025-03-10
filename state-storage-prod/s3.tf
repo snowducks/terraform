@@ -3,7 +3,7 @@ resource "aws_s3_bucket" "prod_terraform_state" {
   bucket = "prod-snowduck-terraform-state"
 }
 
-# S3 버킷에 버전 관리 활성화
+# S3 버킷 버전 관리 활성화
 resource "aws_s3_bucket_versioning" "enabled" {
   bucket = aws_s3_bucket.prod_terraform_state.id
   versioning_configuration {
@@ -21,7 +21,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   }
 }
 
-# S3 퍼블릭 액세스 완전 차단
+# S3 퍼블릭 액세스 차단
 resource "aws_s3_bucket_public_access_block" "public_access" {
   bucket = aws_s3_bucket.prod_terraform_state.id
   block_public_acls       = true

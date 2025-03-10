@@ -1,10 +1,9 @@
 module "dev_vpc" {
-  source = "../modules/vpc"  # 모듈 경로 설정
+  source = "../modules/vpc"
 
   vpc_name  = "dev-vpc"
   vpc_cidr  = "10.0.0.0/16"
 
-  # bastion
   public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
   private_subnet_cidrs = ["10.0.3.0/24", "10.0.4.0/24"]
   
@@ -18,10 +17,8 @@ module "dev_vpc" {
   internet_gateway  = "dev-igw"
   public_route_table = "dev-public-rt"
   private_route_tables = ["dev-private-rt-1", "dev-private-rt-2"]
-
 }
 
-# 출력값 확인
 output "dev_vpc_id" {
   value = module.dev_vpc.vpc_id 
 }

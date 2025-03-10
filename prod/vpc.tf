@@ -1,5 +1,5 @@
 module "prod_vpc" {
-  source = "../modules/vpc"  # 모듈 경로 설정
+  source = "../modules/vpc"
 
   vpc_name  = "prod-vpc"
   vpc_cidr  = "10.3.0.0/16"
@@ -19,16 +19,17 @@ module "prod_vpc" {
   private_route_tables = ["prod-private-rt-1", "prod-private-rt-2"]
 }
 
-
-# Prod VPC 출력값
 output "prod_vpc_id" {
+  description = "prod 환경 VPC ID"
   value = module.prod_vpc.vpc_id
 }
 
 output "prod_public_subnets" {
+  description = "prod 환경 VPC 퍼블릭 서브넷 목록"
   value = module.prod_vpc.public_subnets
 }
 
 output "prod_private_subnets" {
+  description = "prod 환경 VPC 프라이빗 서브넷 목록"
   value = module.prod_vpc.private_subnets
 }

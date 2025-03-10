@@ -6,7 +6,7 @@ resource "aws_security_group" "dev_eks_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["10.0.0.0/16"]
   }
 
   egress {
@@ -17,14 +17,11 @@ resource "aws_security_group" "dev_eks_sg" {
   }
 }
 
-
 module "dev_eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
-
-  enable_cluster_creator_admin_permissions = true # 해결
-
+  enable_cluster_creator_admin_permissions = true
   cluster_name    = "dev-eks-cluster"
   cluster_version = "1.31"
 
@@ -116,12 +113,12 @@ provider "kubernetes" {
 }
 
 output "eks_cluster_id" {
-  description = "dev 환경 EKS 클러스터의 ID"
+  description = "dev 환경 EKS 클러스터 ID"
   value       = module.dev_eks.cluster_id
 }
 
 output "eks_cluster_endpoint" {
-  description = "dev 환경 EKS 클러스터의 엔드포인트 URL"
+  description = "dev 환경 EKS 클러스터 엔드포인트 URL"
   value       = module.dev_eks.cluster_endpoint
 }
 
