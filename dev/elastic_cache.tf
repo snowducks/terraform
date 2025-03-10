@@ -5,7 +5,7 @@ resource "aws_elasticache_subnet_group" "dev_elasticcache_subnet_group" {
 
 resource "aws_security_group" "dev_elasticache_sg" {
   name        = "dev-elasticache-security-group"
-  description = "Allow inbound traffic to Elasticache"
+  description = "Elasticache 인바운드 규칙"
   vpc_id = module.dev_vpc.vpc_id
 
   ingress {
@@ -44,16 +44,16 @@ resource "aws_elasticache_cluster" "dev_elasticache_cluster" {
 }
 
 output "elasticache_cluster_id" {
-  description = "dev 환경 ElastiCache 클러스터의 ID"
+  description = "dev 환경 ElastiCache 클러스터 ID"
   value       = aws_elasticache_cluster.dev_elasticache_cluster.id
 }
 
 output "elasticache_primary_endpoint" {
-  description = "dev 환경 ElastiCache 클러스터의 기본 엔드포인트 주소"
+  description = "dev 환경 ElastiCache 클러스터 기본 엔드포인트 주소"
   value       = aws_elasticache_cluster.dev_elasticache_cluster.cache_nodes[0].address
 }
 
 output "elasticache_port" {
-  description = "dev 환경 ElastiCache 클러스터의 포트 번호"
+  description = "dev 환경 ElastiCache 클러스터 포트 번호"
   value       = aws_elasticache_cluster.dev_elasticache_cluster.cache_nodes[0].port
 }

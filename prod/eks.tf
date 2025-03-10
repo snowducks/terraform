@@ -6,7 +6,7 @@ resource "aws_security_group" "prod_eks_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["10.3.0.0/16"]
   }
 
   egress {
@@ -21,7 +21,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
-  enable_cluster_creator_admin_permissions = true # 해결
+  enable_cluster_creator_admin_permissions = true
 
   cluster_name    = "prod-eks-clusters"
   cluster_version = "1.31"
@@ -47,7 +47,6 @@ module "eks" {
       desired_size = 3
     }
   }
-
 }
 
 module "eks_aws_auth" {
@@ -98,7 +97,6 @@ module "eks_aws_auth" {
   ]
 }
 
-
 data "aws_eks_cluster" "default" {
   name = module.eks.cluster_name
   depends_on = [module.eks]
@@ -113,21 +111,15 @@ provider "kubernetes" {
   host                   = data.aws_eks_cluster.default.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.default.certificate_authority[0].data)
   token                  = data.aws_eks_cluster_auth.default.token
-/* 이거 하면 왠지 그때 오류나던거 해결할듯한대
-  depends_on = [
-    module.eks,                # ✅ EKS 클러스터가 완전히 생성된 후 실행
-    module.eks_aws_auth        # ✅ AWS IAM 인증이 완료된 후 실행
-  ]
-  */
 }
 
 output "eks_cluster_id" {
-  description = "EKS 클러스터의 ID"
+  description = "EKS 클러스터 ID"
   value       = module.eks.cluster_id
 }
 
 output "eks_cluster_endpoint" {
-  description = "EKS 클러스터의 엔드포인트 URL"
+  description = "EKS 클러스터 엔드포인트 URL"
   value       = module.eks.cluster_endpoint
 }
 

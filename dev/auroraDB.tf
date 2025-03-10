@@ -1,4 +1,4 @@
-# Aurora Subnet Group (기존 코드 유지)
+# Aurora Subnet Group
 resource "aws_db_subnet_group" "dev_aurora_subnet_group" {
   name       = "dev-aurora-subnet-group"
   subnet_ids = module.dev_vpc.private_subnets
@@ -7,7 +7,7 @@ resource "aws_db_subnet_group" "dev_aurora_subnet_group" {
   }
 }
 
-# Dev 환경에서만 사용할 Aurora Cluster (Regional)
+# dev 환경에서만 사용할 Aurora Cluster
 resource "aws_rds_cluster" "dev_aurora_cluster" {
   cluster_identifier     = "dev-aurora-cluster" 
   engine                = "aurora-mysql"
@@ -19,7 +19,7 @@ resource "aws_rds_cluster" "dev_aurora_cluster" {
   vpc_security_group_ids = [module.dev_aurora_sg.security_group_id]
   
   backup_retention_period = 7  
-  preferred_backup_window = "07:00-09:00"  
+  preferred_backup_window = "07:00-09:00"
 
   storage_encrypted       = true 
   deletion_protection     = false  
@@ -32,9 +32,9 @@ resource "aws_rds_cluster" "dev_aurora_cluster" {
   }
 }
 
-# Aurora Cluster의 Writer 노드 (Primary Instance)
+# Aurora Cluster의 Writer 노드
 resource "aws_rds_cluster_instance" "dev_aurora_instance" {
-  count                = 2  # ✅ 필요에 따라 Writer 1개 + Reader 1개 또는 다수 생성 가능
+  count                = 2
   identifier           = "dev-aurora-instance-${count.index}"
   cluster_identifier   = aws_rds_cluster.dev_aurora_cluster.id
   instance_class       = "db.r5.large"  
@@ -57,7 +57,7 @@ module "dev_aurora_sg" {
       from_port   = 3306
       to_port     = 3306
       protocol    = "tcp"
-      cidr_blocks = ["10.0.0.0/16"]  
+      cidr_blocks = ["10.0.0.0/16"]
     }
   ]
   egress_rules = [
@@ -70,23 +70,22 @@ module "dev_aurora_sg" {
   ]
 }
 
-# Aurora DB 엔드포인트 출력값
 output "aurora_cluster_endpoint" {
-  description = "Writer endpoint of the Aurora Cluster (Dev)"
+  description = "dev 환경 Aurora 클러스터의 Writer 엔드포인트"
   value       = aws_rds_cluster.dev_aurora_cluster.endpoint
 }
 
 output "aurora_reader_endpoint" {
-  description = "Reader endpoint of the Aurora Cluster (Dev)"
+  description = "dev 환경 Aurora 클러스터의 Reader 엔드포인트"
   value       = aws_rds_cluster.dev_aurora_cluster.reader_endpoint
 }
 
 output "aurora_security_group_id" {
-  description = "Security Group ID associated with the Aurora Cluster (Dev)"
+  description = "dev 환경 Aurora 클러스터에 연결된 보안 그룹 ID"
   value       = module.dev_aurora_sg.security_group_id
 }
 
 output "aurora_subnet_group_name" {
-  description = "Subnet Group Name of the Aurora Cluster (Dev)"
+  description = "dev 환경 Aurora 클러스터의 서브넷 그룹 이름"
   value       = aws_db_subnet_group.dev_aurora_subnet_group.name
 }

@@ -11,7 +11,7 @@ resource "aws_iam_role" "jenkins_ecr_role" {
     Statement = [{
       Effect = "Allow"
       Principal = {
-        Service = "ec2.amazonaws.com" # Jenkins가 실행되는 환경
+        Service = "ec2.amazonaws.com"
       }
       Action = "sts:AssumeRole"
     }]
@@ -28,7 +28,7 @@ resource "aws_iam_policy" "ecr_access_policy" {
     Statement = [
       {
         Effect = "Allow"
-        Action = [ # 이미지 다운로드, 업로드 권한 부여
+        Action = [
           "ecr:GetDownloadUrlForLayer",
           "ecr:BatchGetImage",
           "ecr:BatchCheckLayerAvailability",
@@ -56,8 +56,6 @@ resource "aws_iam_role_policy_attachment" "jenkins_ecr_policy_attach" {
   role       = aws_iam_role.jenkins_ecr_role.name
 }
 
-
-# Jenkins IAM 역할의 이름과 ARN 출력
 output "jenkins_ecr_role_name" {
   description = "Jenkins ECR IAM 역할의 이름"
   value       = aws_iam_role.jenkins_ecr_role.name
@@ -68,7 +66,6 @@ output "jenkins_ecr_role_arn" {
   value       = aws_iam_role.jenkins_ecr_role.arn
 }
 
-# ECR 접근 정책의 이름과 ARN 출력
 output "ecr_access_policy_name" {
   description = "Jenkins의 ECR 접근 정책 이름"
   value       = aws_iam_policy.ecr_access_policy.name
